@@ -1,7 +1,38 @@
 import ollama
 
-# will be used as variable
-MODEL = "gemma3:1b"          # or "phi4-mini", "qwen3:0.6b" 
+# Model configuration
+MODEL = "gemma3:1b"          # or "phi4-mini", "qwen3:0.6b"
+
+# Test data - stored separately for easy modification
+TEST_DATA = [
+    {
+        "count": 1,
+        "attribute": "car colour",
+        "options": ["yellow", "blue", "grey"],
+        "url": "https://images.unsplash.com/photo-1595925889916-2a1d773a0613?ixid=M3w4MjcwNjd8MHwxfHNlYXJjaHwyfHxNZXJjZWRlcyUyMGNhcnxlbnwwfHx8fDE3NzMwNjg5Mzl8MA&ixlib=rb-4.1.0&fit=max&q=80",
+        "expected": "blue"
+    },
+    {
+        "count": 1,
+        "attribute": "car colour",
+        "options": ["yellow", "blue", "grey"],
+        "url": "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?ixid=M3w4MjcwNjd8MHwxfHNlYXJjaHwxfHxNZXJjZWRlcyUyMGNhcnxlbnwwfHx8fDE3NzMwNjg5Mzl8MA&ixlib=rb-4.1.0&fit=max&q=80",
+        "expected": "yellow"
+    }
+]
+
+def generate_question(data: dict) -> str:
+    """Generate a question from test data parameters."""
+    count = data["count"]
+    attribute = data["attribute"]
+    options = data["options"]
+    url = data["url"]
+    options_str = ", ".join(options)
+    return f"Select '{count}' best match '{attribute}' from set [{options_str}] for the image {url}"
+
+def generate_test_cases(test_data: list) -> list:
+    """Generate test cases from test data configuration."""
+    return [(generate_question(item), item["expected"]) for item in test_data]
 
 def ask_llm(question: str) -> str:
     response = ollama.chat(
@@ -13,11 +44,7 @@ def ask_llm(question: str) -> str:
 
 
 def simple_exact_match_eval():
-    test_cases = [
-        ("The capital of Belgium?", "Brussels"),
-        ("2 + 2 = ?", "4"),
-        ("Red planet?", "Mars"),
-    ]
+    test_cases = generate_test_cases(TEST_DATA)
 
     correct = 0
     total = len(test_cases)
