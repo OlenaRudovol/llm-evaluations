@@ -1,0 +1,18 @@
+{
+    "name": "LLM Eval Environment",
+    "image": "mcr.microsoft.com/devcontainers/python:3.12",  // Basic image from Python 3.12
+    "features": {
+        "ghcr.io/devcontainers/features/python:1": { "version": "3.12" }
+    },
+    "postCreateCommand": [
+        "curl -fsSL https://ollama.com/install.sh | sh",  // Install Ollama
+        "ollama pull gemma3:1b",  // the model by default (can be changed)
+        "pip install -r requirements.txt"  // Install Python dependenciess
+    ],
+    "postStartCommand": "ollama serve &",  // Runs Ollama server in background
+    "customizations": {
+        "vscode": {
+            "extensions": ["ms-python.python", "ms-toolsai.jupyter"]  // For usability in VS Code
+        }
+    }
+}
