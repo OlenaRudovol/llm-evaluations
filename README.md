@@ -1,28 +1,47 @@
-# LLM Evaluation Demo
+# LLM Evaluation Framework
 
-This repo is for simple
+An open-source framework for evaluating Large Language Models (LLMs) with extensible adapters, templates, datasets, and metrics. Perfect for comparing model performance across different providers and tasks.
 
-## How to run
-1. Open in GitHub Codespaces (click the green "Code" > "Codespaces" > "Create codespace on main").
+## Quick Start
+
+1. **Install the package**:
+   ```bash
+   pip install -e .
+   ```
+
 2. **Set up environment variables**: Copy `.env.example` to `.env` and fill in your API keys:
-   ```sh
+   ```bash
    cp .env.example .env
    # Edit .env with your OpenAI API key
    ```
-   The scripts will automatically load variables from `.env` if it exists.
-3. **Install dependencies** (if not already done by devcontainer):
-   ```sh
-   pip install -r requirements.txt
-   ```
-4. **Run the evaluator** with your preferred LLM provider:
-   ```sh
+
+3. **Run the evaluator** with your preferred LLM provider:
+   ```bash
    # Using default provider (Ollama)
-   python -m Test.eval
+   python -m examples.unified_eval
    
    # Or use OpenAI
-   LLM_PROVIDER=openai python -m Test.eval
+   LLM_PROVIDER=openai python -m examples.unified_eval
    ```
-5. If running locally, install Ollama (ollama.com), clone, `pip install -r requirements.txt`, `ollama pull gemma3:1b`, then invoke the same commands above.
+
+4. If running locally, install Ollama (ollama.com), pull a model: `ollama pull gemma3:1b`
+
+## Project Structure
+
+```
+llm-eval/
+├── src/llm_eval/          # Core package
+│   ├── adapters/          # LLM provider adapters (Ollama, OpenAI, etc.)
+│   ├── core/              # Evaluation engine and configuration
+│   ├── data/              # Data loading utilities
+│   ├── templates/         # Question/prompt templates
+│   └── utils/             # Helper utilities
+├── examples/              # Demo scripts and usage examples
+├── scripts/               # Utility scripts (data generation, etc.)
+├── data/                  # Datasets
+├── tests/                 # Unit tests
+└── docs/                  # Documentation
+```
 
 ## Configuration
 
@@ -52,17 +71,15 @@ This format:
 
 **Option 1: Edit the JSONL file directly**
 ```jsonl
-{"question": "New question?", "expected": "expected answer"}
-{"question": "Another question?", "expected": "answer"}
+{"count": 1, "attribute": "car colour", "options": ["red", "blue"], "url": "https://example.com/image.jpg", "expected": "red"}
 ```
 
 **Option 2: Generate samples programmatically**
 ```python
-from Test.data_loader import DataLoader
+from src.llm_eval.data import DataLoader
 
 samples = [
-    {"question": "Q1?", "expected": "A1"},
-    {"question": "Q2?", "expected": "A2"},
+    {"count": 1, "attribute": "car colour", "options": ["red", "blue"], "url": "https://example.com/image.jpg", "expected": "red"},
     # ... up to 3000+ samples
 ]
 
@@ -72,7 +89,7 @@ DataLoader.save_jsonl(samples, "data/my_samples.jsonl")
 ### Using the DataLoader
 
 ```python
-from Test.data_loader import DataLoader
+from src.llm_eval.data import DataLoader
 
 # Load a JSONL file
 samples = DataLoader.load_jsonl("data/my_samples.jsonl")
@@ -97,6 +114,40 @@ DataLoader.save_jsonl(samples, "data/output.jsonl")
 ### Supported Formats
 
 - **JSONL** (recommended) — `/data/samples.jsonl` (memory-efficient for large datasets)
+
+## Extending the Framework
+
+### Adding New LLM Providers
+
+1. Create a new adapter in `src/llm_eval/adapters/`:
+   ```python
+   from .base import LLMAdapter
+
+   class AnthropicAdapter(LLMAdapter):
+       def __init__(self, model: str, api_key: str):
+           # Initialize client
+           pass
+       
+       def ask(self, question: str) -> str:
+           # Implement API call
+           pass
+       
+       @property
+       def model_name(self) -> str:
+           return self._model
+   ```
+
+2. Update `src/llm_eval/adapters/__init__.py` to export it
+
+3. Update `examples/unified_eval.py` to handle the new provider
+
+### Adding New Metrics
+
+Extend `src/llm_eval/core/evaluator.py` with new evaluation functions.
+
+### Adding New Templates
+
+Add new JSON files to `src/llm_eval/templates/` and update the evaluator to support them.
 
 ## Troubleshooting
 

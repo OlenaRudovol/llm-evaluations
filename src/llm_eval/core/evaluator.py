@@ -13,7 +13,7 @@ def _load_question_template() -> str:
     if _QUESTION_TEMPLATE is not None:
         return _QUESTION_TEMPLATE
     
-    config_file = Path(__file__).parent / "question_template.json"
+    config_file = Path(__file__).parent.parent / "templates" / "car_color.json"
     try:
         with open(config_file, 'r') as f:
             config = json.load(f)
@@ -24,16 +24,16 @@ def _load_question_template() -> str:
     except FileNotFoundError:
         raise FileNotFoundError(
             f"Question template config not found at {config_file}. "
-            "Please ensure question_template.json exists in the Test directory."
+            "Please ensure car_color.json exists in the templates directory."
         )
     except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in question_template.json: {e}")
+        raise ValueError(f"Invalid JSON in car_color.json: {e}")
 
 
 def generate_question(data: Dict) -> str:
     """Generate a question from test data parameters using the configured template.
     
-    The template is loaded from question_template.json and can be customized
+    The template is loaded from car_color.json and can be customized
     by editing that file without modifying this code.
     
     Args:

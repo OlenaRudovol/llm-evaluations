@@ -10,17 +10,16 @@ The provider and model are configured via environment variables:
 - OLLAMA_PORT: Optional Ollama port (default: 11434)
 
 Usage:
-    python -m Test.eval              # Uses default provider (Ollama)
-    LLM_PROVIDER=openai python -m Test.eval  # Uses OpenAI
+    python -m examples.unified_eval              # Uses default provider (Ollama)
+    LLM_PROVIDER=openai python -m examples.unified_eval  # Uses OpenAI
 """
 
 import logging
 from pathlib import Path
 
-from . import evaluator
-from .config import config
-from .data_loader import DataLoader
-from .llm_adapter import OllamaAdapter, OpenAIAdapter
+from src.llm_eval.core import evaluator, config
+from src.llm_eval.data import DataLoader
+from src.llm_eval.adapters import OllamaAdapter, OpenAIAdapter
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -36,11 +35,7 @@ def create_adapter():
     
     if provider == "ollama":
         logger.info(f"Using Ollama provider with model '{config.ollama_model}'")
-        return OllamaAdapter(
-            model=config.ollama_model,
-            host=config.ollama_host,
-            port=int(config.ollama_port) if config.ollama_port else None,
-        )
+        return OllamaAdapter(model=config.ollama_model)
     elif provider == "openai":
         logger.info(f"Using OpenAI provider with model '{config.openai_model}'")
         return OpenAIAdapter(
