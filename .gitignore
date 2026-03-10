@@ -18,6 +18,15 @@ var/
 wheels/
 *.egg-info/
 .installed.cfg
+
+# Environment and configuration
+.env
+.env.local
+.env.*.local
+
+# Large generated datasets (keep sample files, exclude expanded versions)
+data/*_expanded.jsonl
+data/*.csv
 *.egg
 
 # Virtual environments
