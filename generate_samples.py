@@ -5,7 +5,7 @@ This demonstrates how to create and save test datasets for evaluation.
 Both OpenAI and Ollama evaluators use the same dataset for fair comparison.
 """
 
-from Test.data_loader import DataLoader
+from src.llm_eval.data.loader import DataLoader
 
 
 def generate_samples(count: int = 100) -> list:
@@ -43,5 +43,5 @@ if __name__ == "__main__":
     samples = generate_samples(100)
     DataLoader.save_jsonl(samples, "data/car_color_samples_expanded.jsonl")
     print(f"✓ Saved {len(samples)} samples to data/car_color_samples_expanded.jsonl")
-    print("\nTo use the expanded dataset, update the DATA_FILE path in eval_ollama.py/eval_openai.py")
+    print("\nTo use the expanded dataset, update the DATA_FILE path in examples/unified_eval.py")
     print("Both evaluators will use the same data for fair comparison.")
