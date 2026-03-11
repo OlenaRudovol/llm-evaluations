@@ -1,0 +1,14 @@
+{
+  "count": 1,
+  "attribute": "car colour",
+  "options": ["yellow", "blue", "grey", "red", "white", "multicolour"],
+  "images": [
+    { "brand" : "Nike", "expected": "red", "url": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"},
+    { "brand" : "Adidas", "expected": "multicolour", "url": "https://images.unsplash.com/photo-1560769629-975ec94e6a86?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"},
+    { "brand" : "Nike", "expected": "multicolour", "url": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"},
+    { "brand" : "Nike", "expected": "white", "url": "https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg?auto=compress&cs=tinysrgb&w=800"},
+    { "brand" : "Nike", "expected": "multicolour", "url": "https://images.pexels.com/photos/2529157/pexels-photo-2529157.jpeg?auto=compress&cs=tinysrgb&w=800"},
+    { "brand" : "Nike", "expected": "white", "url": "https://cdn.pixabay.com/photo/2016/11/19/18/06/feet-1840619_1280.jpg"},
+    { "brand" : "No", "expected": "white", "url": "https://cdn.pixabay.com/photo/2017/08/07/14/02/people-2604149_1280.jpg"}
+  ]
+}

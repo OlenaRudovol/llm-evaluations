@@ -80,7 +80,6 @@ from src.llm_eval.data import DataLoader
 
 samples = [
     {"count": 1, "attribute": "car colour", "options": ["red", "blue"], "url": "https://example.com/image.jpg", "expected": "red"},
-    # ... up to 3000+ samples
 ]
 
 DataLoader.save_jsonl(samples, "data/my_samples.jsonl")

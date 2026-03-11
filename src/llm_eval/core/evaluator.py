@@ -30,33 +30,40 @@ def _load_question_template() -> str:
         raise ValueError(f"Invalid JSON in car_color.json: {e}")
 
 
-def generate_question(data: Dict) -> str:
+def generate_question(base_data: Dict, image_item: Dict) -> str:
     """Generate a question from test data parameters using the configured template.
     
     The template is loaded from car_color.json and can be customized
     by editing that file without modifying this code.
     
     Args:
-        data: Dictionary with keys: count, attribute, options, url, expected
+        base_data: Dictionary with keys: count, attribute, options
+        image_item: Dictionary with keys: url, expected
         
     Raises:
         KeyError: If required keys are missing from data
         ValueError: If data types are invalid
     """
     # Validate required keys
-    required_keys = {"count", "attribute", "options", "url", "expected"}
-    missing_keys = required_keys - set(data.keys())
-    if missing_keys:
-        raise KeyError(f"Missing required keys in test data: {missing_keys}")
+    base_required = {"count", "attribute", "options"}
+    image_required = {"url", "expected"}
+    
+    base_missing = base_required - set(base_data.keys())
+    image_missing = image_required - set(image_item.keys())
+    
+    if base_missing:
+        raise KeyError(f"Missing required keys in base data: {base_missing}")
+    if image_missing:
+        raise KeyError(f"Missing required keys in image item: {image_missing}")
     
     # Validate data types
-    if not isinstance(data["options"], (list, tuple)):
+    if not isinstance(base_data["options"], (list, tuple)):
         raise ValueError("'options' must be a list or tuple")
     
-    count = data["count"]
-    attribute = data["attribute"]
-    options = data["options"]
-    url = data["url"]
+    count = base_data["count"]
+    attribute = base_data["attribute"]
+    options = base_data["options"]
+    url = image_item["url"]
     options_str = ", ".join(str(opt) for opt in options)
     
     template = _load_question_template()  # Lazy load on first use
