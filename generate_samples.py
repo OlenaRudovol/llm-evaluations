@@ -5,13 +5,14 @@ This demonstrates how to create and save test datasets for evaluation.
 Both OpenAI and Ollama evaluators use the same dataset for fair comparison.
 """
 
-from src.llm_eval.data.loader import DataLoader
+import json
+from pathlib import Path
 
 
-def generate_samples(count: int = 100) -> list:
-    """Generate synthetic test samples in ollama format.
+def generate_samples(count: int = 100) -> dict:
+    """Generate synthetic test samples with shared metadata and images array.
     
-    Both Ollama and OpenAI evaluators use this format for comparison.
+    Returns a structured dataset with shared base data and individual image items.
     """
     sample_colors = [
         ("red", "car"),
@@ -21,27 +22,33 @@ def generate_samples(count: int = 100) -> list:
         ("black", "car"),
     ]
     
-    samples = []
+    images = []
     for i in range(count):
         color_expected, obj_type = sample_colors[i % len(sample_colors)]
-        samples.append({
-            "count": 1,
-            "attribute": f"{obj_type} colour",
-            "options": ["red", "blue", "yellow", "green", "black"],
+        images.append({
             "url": f"https://example.com/image_{i}.jpg",
-            "expected": color_expected,
-            "difficulty": "easy",
-            "id": i + 1
+            "expected": color_expected
         })
     
-    return samples
+    return {
+        "count": 1,
+        "attribute": "car colour",
+        "options": ["red", "blue", "yellow", "green", "black"],
+        "images": images
+    }
 
 
 if __name__ == "__main__":
-    # Generate and save samples (used by both Ollama and OpenAI)
+    # Generate and save samples
     print("Generating test samples (used by both evaluators)...")
-    samples = generate_samples(100)
-    DataLoader.save_jsonl(samples, "data/car_color_samples_expanded.jsonl")
-    print(f"✓ Saved {len(samples)} samples to data/car_color_samples_expanded.jsonl")
+    data = generate_samples(100)
+    
+    output_path = Path("data/car_color_samples_expanded.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    
+    print(f"✓ Saved {len(data['images'])} samples to {output_path}")
     print("\nTo use the expanded dataset, update the DATA_FILE path in examples/unified_eval.py")
     print("Both evaluators will use the same data for fair comparison.")
