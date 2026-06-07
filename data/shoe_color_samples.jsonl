@@ -1,6 +1,6 @@
 {
   "count": 1,
-  "attribute": "car colour",
+  "attribute": "shoe colour",
   "options": ["yellow", "blue", "grey", "red", "white", "multicolour"],
   "images": [
     { "brand" : "Nike", "expected": "red", "url": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"},
