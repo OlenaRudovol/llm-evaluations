@@ -1,17 +1,23 @@
 """
-Unified LLM evaluator that works with any provider (Ollama, OpenAI, etc.).
+Unified LLM evaluator that works with any provider (Ollama, OpenAI, Anthropic).
 
 The provider and model are configured via environment variables:
-- LLM_PROVIDER: 'ollama' (default) or 'openai'
+- LLM_PROVIDER: 'ollama' (default), 'openai', 'anthropic', or 'google'
 - OLLAMA_MODEL: Model for Ollama (default: gemma3:1b)
 - OPENAI_MODEL: Model for OpenAI (default: gpt-4o-mini)
 - OPENAI_API_KEY: Required for OpenAI provider
+- ANTHROPIC_MODEL: Model for Anthropic (default: claude-haiku-4-5-20251001)
+- ANTHROPIC_API_KEY: Required for Anthropic provider
+- GOOGLE_MODEL: Model for Google (default: gemini-2.0-flash)
+- GOOGLE_API_KEY: Required for Google provider
 - OLLAMA_HOST: Optional Ollama host (default: localhost)
 - OLLAMA_PORT: Optional Ollama port (default: 11434)
 
 Usage:
-    python -m examples.unified_eval              # Uses default provider (Ollama)
-    LLM_PROVIDER=openai python -m examples.unified_eval  # Uses OpenAI
+    python -m examples.unified_eval                        # Uses default provider (Ollama)
+    LLM_PROVIDER=anthropic python -m examples.unified_eval # Uses Anthropic
+    LLM_PROVIDER=openai python -m examples.unified_eval    # Uses OpenAI
+    LLM_PROVIDER=google python -m examples.unified_eval    # Uses Google Gemini
 """
 
 import logging
@@ -19,7 +25,7 @@ import json
 from pathlib import Path
 
 from src.llm_eval.core import evaluator, config
-from src.llm_eval.adapters import OllamaAdapter, OpenAIAdapter
+from src.llm_eval.adapters import AnthropicAdapter, GoogleAdapter, OllamaAdapter, OpenAIAdapter
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -36,16 +42,28 @@ def create_adapter():
     if provider == "ollama":
         logger.info(f"Using Ollama provider with model '{config.ollama_model}'")
         return OllamaAdapter(model=config.ollama_model)
+    elif provider == "anthropic":
+        logger.info(f"Using Anthropic provider with model '{config.anthropic_model}'")
+        return AnthropicAdapter(
+            model=config.anthropic_model,
+            api_key=config.anthropic_api_key,
+        )
     elif provider == "openai":
         logger.info(f"Using OpenAI provider with model '{config.openai_model}'")
         return OpenAIAdapter(
             model=config.openai_model,
             api_key=config.openai_api_key,
         )
+    elif provider == "google":
+        logger.info(f"Using Google provider with model '{config.google_model}'")
+        return GoogleAdapter(
+            model=config.google_model,
+            api_key=config.google_api_key,
+        )
     else:
         raise ValueError(
             f"Unknown LLM_PROVIDER: {provider}. "
-            f"Valid options are: 'ollama', 'openai'"
+            f"Valid options are: 'ollama', 'anthropic', 'openai', 'google'"
         )
 
 
