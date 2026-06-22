@@ -12,7 +12,7 @@ An open-source framework for evaluating Large Language Models (LLMs) with extens
 2. **Set up environment variables**: Copy `.env.example` to `.env` and fill in your API keys:
    ```bash
    cp .env.example .env
-   # Edit .env with your OpenAI API key
+   # Edit .env with your API keys
    ```
 
 3. **Run the evaluator** with your preferred LLM provider:
@@ -20,6 +20,12 @@ An open-source framework for evaluating Large Language Models (LLMs) with extens
    # Using default provider (Ollama)
    python -m examples.unified_eval
    
+   # Or use Anthropic
+   LLM_PROVIDER=anthropic python -m examples.unified_eval
+
+   # Or use Google Gemini (free tier at aistudio.google.com)
+   LLM_PROVIDER=google python -m examples.unified_eval
+
    # Or use OpenAI
    LLM_PROVIDER=openai python -m examples.unified_eval
    ```
@@ -31,7 +37,7 @@ An open-source framework for evaluating Large Language Models (LLMs) with extens
 ```
 llm-eval/
 ├── src/llm_eval/          # Core package
-│   ├── adapters/          # LLM provider adapters (Ollama, OpenAI, etc.)
+│   ├── adapters/          # LLM provider adapters (Ollama, OpenAI, Anthropic, Google)
 │   ├── core/              # Evaluation engine and configuration
 │   ├── data/              # Data loading utilities
 │   ├── templates/         # Question/prompt templates
@@ -47,9 +53,13 @@ llm-eval/
 
 The evaluator uses environment variables for configuration. See `.env.example` for all available options:
 
-- `LLM_PROVIDER`: Which provider to use (default: `ollama`, options: `ollama`, `openai`)
+- `LLM_PROVIDER`: Which provider to use (default: `ollama`, options: `ollama`, `openai`, `anthropic`, `google`)
+- `ANTHROPIC_API_KEY`: Your Anthropic API key (required for Anthropic provider)
+- `ANTHROPIC_MODEL`: Anthropic model to use (default: `claude-haiku-4-5-20251001`)
 - `OPENAI_API_KEY`: Your OpenAI API key (required for OpenAI provider)
 - `OPENAI_MODEL`: OpenAI model to use (default: `gpt-4o-mini`)
+- `GOOGLE_API_KEY`: Your Google API key (required for Google provider, free at aistudio.google.com)
+- `GOOGLE_MODEL`: Google model to use (default: `gemini-2.0-flash`)
 - `OLLAMA_MODEL`: Ollama model to use (default: `gemma3:1b`)
 - `OLLAMA_HOST`: Ollama server host (default: `localhost`)
 - `OLLAMA_PORT`: Ollama server port (default: `11434`)
@@ -65,7 +75,7 @@ This format:
 
 ### Data Files
 
-- `data/car_color_samples.jsonl` — test cases for car color classification used by both Ollama and OpenAI evaluators (for direct comparison)
+- `data/car_color_samples.jsonl` — test cases for car color classification used by all provider evaluators (for direct comparison)
 
 ### Adding More Samples
 
