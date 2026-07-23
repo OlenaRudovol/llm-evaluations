@@ -30,7 +30,7 @@ DATA_FILE = Path(__file__).parent.parent / "data" / "review_aspects_samples.json
 def create_adapter():
     """Create the appropriate LLM adapter based on configuration."""
     provider = config.llm_provider.lower()
-    
+
     if provider == "ollama":
         logger.info(f"Using Ollama provider with model '{config.ollama_model}'")
         return OllamaAdapter(model=config.ollama_model)
@@ -50,7 +50,7 @@ def create_adapter():
 def evaluate():
     """Run evaluation with the configured LLM provider."""
     adapter = create_adapter()
-    
+
     logger.info(f"Loading test data from {DATA_FILE}")
 
     data = DataLoader.load_json(str(DATA_FILE))

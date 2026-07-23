@@ -114,7 +114,7 @@ test_cases = data["reviews"]
    ```python
    from .base import LLMAdapter
 
-   class AnthropicAdapter(LLMAdapter):
+   class NewProviderAdapter(LLMAdapter):
        def __init__(self, model: str, api_key: str):
            # Initialize client
            pass

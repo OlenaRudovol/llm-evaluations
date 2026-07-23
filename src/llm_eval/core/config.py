@@ -16,18 +16,18 @@ class Config:
         """Initialize config by reading environment variables once."""
         # LLM Provider settings
         self._llm_provider = os.getenv("LLM_PROVIDER", "ollama").lower()
-        
+
         # OpenAI settings
         self._openai_api_key = os.getenv("OPENAI_API_KEY")
         self._openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-        
+
         # Ollama settings
         self._ollama_model = os.getenv("OLLAMA_MODEL", "gemma3:1b")
 
         # Validate OpenAI config if provider is OpenAI
         if self._llm_provider == "openai" and not self._openai_api_key:
             raise ValueError("OPENAI_API_KEY environment variable is required for OpenAI provider")
-    
+
     @property
     def llm_provider(self) -> str:
         """Get cached LLM provider ('ollama' or 'openai')."""
