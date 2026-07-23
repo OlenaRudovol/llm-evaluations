@@ -1,3 +1,3 @@
-from .loader import DataLoader
+from .loader import load_json
 
-__all__ = ["DataLoader"]
+__all__ = ["load_json"]

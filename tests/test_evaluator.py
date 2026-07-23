@@ -1,5 +1,5 @@
 import pytest
-from src.llm_eval.core import evaluator
+from llm_eval.core import evaluator
 
 
 class TestGenerateQuestion:
@@ -55,6 +55,20 @@ class TestGenerateQuestion:
         assert expected_substring in question
 
 
+class TestCollectAnswers:
+    def test_pairs_questions_with_answers_and_expected(self):
+        test_cases = [("Q1", ["price"]), ("Q2", ["quality"])]
+        responses = iter(["A1", "A2"])
+        answers = evaluator.collect_answers(test_cases, lambda q: next(responses))
+        assert answers == [("Q1", "A1", ["price"]), ("Q2", "A2", ["quality"])]
+
+    def test_asks_each_question_exactly_once(self):
+        asked = []
+        test_cases = [("Q1", []), ("Q2", [])]
+        evaluator.collect_answers(test_cases, lambda q: asked.append(q) or "answer")
+        assert asked == ["Q1", "Q2"]
+
+
 class TestMultiLabelEval:
     OPTIONS = ["price", "quality", "shipping", "customer service", "packaging"]
 
@@ -78,14 +92,46 @@ class TestMultiLabelEval:
         ],
     )
     def test_f1_scoring(self, expected, answer, expected_f1):
-        test_cases = [("Q1", expected)]
-        f1 = evaluator.multi_label_eval(
-            test_cases, lambda q: answer, options=self.OPTIONS, model_name="mock-model"
-        )
-        assert f1 == pytest.approx(expected_f1)
+        answers = [("Q1", answer, expected)]
+        result = evaluator.multi_label_eval(answers, options=self.OPTIONS, model_name="mock-model")
+        assert result["avg_f1"] == pytest.approx(expected_f1)
 
-    def test_empty_test_cases(self):
-        f1 = evaluator.multi_label_eval(
-            [], lambda q: "anything", options=self.OPTIONS, model_name="mock-model"
-        )
-        assert f1 == 0.0
+    def test_empty_answers(self):
+        result = evaluator.multi_label_eval([], options=self.OPTIONS, model_name="mock-model")
+        assert result == {
+            "avg_f1": 0.0,
+            "exact_match": 0.0,
+            "micro": {"precision": 0.0, "recall": 0.0, "f1": 0.0},
+        }
+
+
+class TestExactMatchEval:
+    @pytest.mark.parametrize(
+        "pairs, expected_rate",
+        [
+            ([({"price"}, {"price"}), ({"quality"}, {"quality"})], 1.0),
+            ([({"price"}, {"price", "quality"})], 0.0),
+            ([({"price"}, {"price"}), ({"quality"}, {"shipping"})], 0.5),
+            ([], 0.0),
+        ],
+        ids=["all_exact", "partial_not_exact", "half_exact", "empty"],
+    )
+    def test_exact_match_rate(self, pairs, expected_rate):
+        assert evaluator.exact_match_eval(pairs) == pytest.approx(expected_rate)
+
+
+class TestMicroPrf1Eval:
+    def test_perfect_predictions(self):
+        pairs = [({"price"}, {"price"}), ({"quality", "shipping"}, {"quality", "shipping"})]
+        result = evaluator.micro_prf1_eval(pairs)
+        assert result == {"precision": 1.0, "recall": 1.0, "f1": 1.0}
+
+    def test_mixed_predictions(self):
+        # TP=1 (price), FP=1 (quality predicted but not expected), FN=1 (shipping expected but missed)
+        pairs = [({"price", "quality"}, {"price", "shipping"})]
+        result = evaluator.micro_prf1_eval(pairs)
+        assert result == {"precision": 0.5, "recall": 0.5, "f1": 0.5}
+
+    def test_empty_pairs(self):
+        result = evaluator.micro_prf1_eval([])
+        assert result == {"precision": 0.0, "recall": 0.0, "f1": 0.0}

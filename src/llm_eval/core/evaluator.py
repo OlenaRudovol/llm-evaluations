@@ -1,33 +1,6 @@
-import json
-from pathlib import Path
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Set, Tuple
 
-
-# Lazy-load question template on first use
-_QUESTION_TEMPLATE: Optional[str] = None
-
-
-def _load_question_template() -> str:
-    """Load the question template from configuration file (lazy-loaded)."""
-    global _QUESTION_TEMPLATE
-    if _QUESTION_TEMPLATE is not None:
-        return _QUESTION_TEMPLATE
-
-    config_file = Path(__file__).parent.parent / "templates" / "review_aspects.json"
-    try:
-        with open(config_file, 'r') as f:
-            config = json.load(f)
-        _QUESTION_TEMPLATE = config.get("question_template", "")
-        if not _QUESTION_TEMPLATE:
-            raise ValueError("question_template key not found in JSON config")
-        return _QUESTION_TEMPLATE
-    except FileNotFoundError:
-        raise FileNotFoundError(
-            f"Question template config not found at {config_file}. "
-            "Please ensure review_aspects.json exists in the templates directory."
-        )
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in review_aspects.json: {e}")
+from ._template_loader import TEMPLATES_DIR, load_template
 
 
 def generate_question(base_data: Dict, review_item: Dict) -> str:
@@ -65,7 +38,7 @@ def generate_question(base_data: Dict, review_item: Dict) -> str:
     text = review_item["text"]
     options_str = ", ".join(str(opt) for opt in options)
 
-    template = _load_question_template()  # Lazy load on first use
+    template = load_template(TEMPLATES_DIR / "review_aspects.json", "question_template")
     return template.format(
         attribute=attribute,
         options_str=options_str,
@@ -73,30 +46,72 @@ def generate_question(base_data: Dict, review_item: Dict) -> str:
     )
 
 
-def multi_label_eval(
+def collect_answers(
     test_cases: List[Tuple[str, List[str]]],
     ask_llm: Callable[[str], str],
+) -> List[Tuple[str, str, List[str]]]:
+    """Ask the model each question once, pairing it with its answer and expected labels.
+
+    Call this once and pass the result to `multi_label_eval` and/or
+    `llm_judge_eval` so each test case is only sent to the model a single
+    time, even when running multiple evaluation methods on the same data.
+    """
+    return [(question, ask_llm(question), expected) for question, expected in test_cases]
+
+
+def exact_match_eval(pairs: List[Tuple[Set[str], Set[str]]]) -> float:
+    """Fraction of examples where the predicted label set exactly equals the expected set.
+
+    Stricter than per-example F1: a partially-correct prediction counts as a miss.
+    """
+    if not pairs:
+        return 0.0
+    matches = sum(1 for predicted, expected in pairs if predicted == expected)
+    return matches / len(pairs)
+
+
+def micro_prf1_eval(pairs: List[Tuple[Set[str], Set[str]]]) -> Dict[str, float]:
+    """Micro-averaged precision/recall/F1, aggregating TP/FP/FN across all examples.
+
+    Unlike the per-example (macro) F1 in `multi_label_eval`, this weights every
+    individual label decision equally rather than every example equally.
+    """
+    tp = fp = fn = 0
+    for predicted, expected in pairs:
+        tp += len(predicted & expected)
+        fp += len(predicted - expected)
+        fn += len(expected - predicted)
+
+    precision = tp / (tp + fp) if (tp + fp) else 0.0
+    recall = tp / (tp + fn) if (tp + fn) else 0.0
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
+    return {"precision": precision, "recall": recall, "f1": f1}
+
+
+def multi_label_eval(
+    answers: List[Tuple[str, str, List[str]]],
     options: List[str],
     model_name: str = "",
-) -> float:
-    """Evaluate a list of (question, expected_labels) pairs against an LLM.
+) -> Dict[str, float]:
+    """Score (question, answer, expected_labels) triples via substring matching.
 
-    The `ask_llm` callable should accept a question string and return the
-    model's free-text answer. Labels are detected by checking which of the
-    known `options` appear (case-insensitively) as a substring of that
-    answer. Returns the average per-example F1 score across all test cases
-    and also prints a human-readable report.
+    Use `collect_answers` to build `answers`. Labels are detected by checking
+    which of the known `options` appear (case-insensitively) as a substring
+    of the model's answer. Prints a human-readable report and returns a dict
+    with `avg_f1` (macro, per-example), `exact_match`, and `micro`
+    (a `{precision, recall, f1}` dict).
     """
     header = f"Testing the model: {model_name}" if model_name else "Evaluating model"
     print(f"{header}\n")
 
+    pairs: List[Tuple[Set[str], Set[str]]] = []
     total_f1 = 0.0
-    for question, expected in test_cases:
-        answer = ask_llm(question)
+    for question, answer, expected in answers:
         answer_lower = answer.lower()
 
         predicted = {opt.lower() for opt in options if opt.lower() in answer_lower}
         expected_set = {label.lower() for label in expected}
+        pairs.append((predicted, expected_set))
 
         if not predicted and not expected_set:
             f1 = 1.0
@@ -117,6 +132,15 @@ def multi_label_eval(
 
         total_f1 += f1
 
-    avg_f1 = total_f1 / len(test_cases) if test_cases else 0.0
-    print(f"\nAverage F1: {avg_f1:.2f}")
-    return avg_f1
+    avg_f1 = total_f1 / len(answers) if answers else 0.0
+    exact_match = exact_match_eval(pairs)
+    micro = micro_prf1_eval(pairs)
+
+    print(f"\nAverage F1 (macro, per-example): {avg_f1:.2f}")
+    print(f"Exact match rate:                {exact_match:.2f}")
+    print(
+        f"Micro precision / recall / F1:   "
+        f"{micro['precision']:.2f} / {micro['recall']:.2f} / {micro['f1']:.2f}"
+    )
+
+    return {"avg_f1": avg_f1, "exact_match": exact_match, "micro": micro}

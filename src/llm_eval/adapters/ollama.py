@@ -27,9 +27,11 @@ class OllamaAdapter(LLMAdapter):
             )
             return response["message"]["content"].strip()
         except (KeyError, TypeError, ValueError) as e:
-            raise RuntimeError(f"Ollama API error: Invalid response format - {e}")
+            raise RuntimeError(f"Ollama API error: Invalid response format - {e}") from e
         except ConnectionError as e:
-            raise RuntimeError(f"Ollama API error: Connection failed - {e}")
+            raise RuntimeError(f"Ollama API error: Connection failed - {e}") from e
+        except Exception as e:
+            raise RuntimeError(f"Ollama API error: {type(e).__name__} - {e}") from e
 
     @property
     def model_name(self) -> str:

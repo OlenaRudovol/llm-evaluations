@@ -6,6 +6,7 @@ The provider and model are configured via environment variables:
 - OLLAMA_MODEL: Model for Ollama (default: gemma3:1b)
 - OPENAI_MODEL: Model for OpenAI (default: gpt-4o-mini)
 - OPENAI_API_KEY: Required for OpenAI provider
+- USE_LLM_JUDGE: 'true' to additionally run LLM-as-judge evaluation (default: false)
 
 Usage:
     python -m examples.unified_eval              # Uses default provider (Ollama)
@@ -15,9 +16,9 @@ Usage:
 import logging
 from pathlib import Path
 
-from src.llm_eval.core import evaluator, config
-from src.llm_eval.data import DataLoader
-from src.llm_eval.adapters import OllamaAdapter, OpenAIAdapter
+from llm_eval.core import config, evaluator, judge
+from llm_eval.data import load_json
+from llm_eval.adapters import OllamaAdapter, OpenAIAdapter
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -29,7 +30,7 @@ DATA_FILE = Path(__file__).parent.parent / "data" / "review_aspects_samples.json
 
 def create_adapter():
     """Create the appropriate LLM adapter based on configuration."""
-    provider = config.llm_provider.lower()
+    provider = config.llm_provider
 
     if provider == "ollama":
         logger.info(f"Using Ollama provider with model '{config.ollama_model}'")
@@ -53,7 +54,7 @@ def evaluate():
 
     logger.info(f"Loading test data from {DATA_FILE}")
 
-    data = DataLoader.load_json(str(DATA_FILE))
+    data = load_json(str(DATA_FILE))
 
     # Extract base data and create test cases from reviews
     base_data = {k: v for k, v in data.items() if k != "reviews"}
@@ -63,9 +64,20 @@ def evaluate():
     ]
 
     logger.info(f"Loaded {len(test_cases)} test cases")
-    evaluator.multi_label_eval(
-        test_cases, adapter.ask, options=base_data["options"], model_name=adapter.model_name
-    )
+
+    # Ask the model once per test case; both evaluators below score these same answers.
+    answers = evaluator.collect_answers(test_cases, adapter.ask)
+
+    evaluator.multi_label_eval(answers, options=base_data["options"], model_name=adapter.model_name)
+
+    if config.use_llm_judge:
+        logger.info("USE_LLM_JUDGE=true: running LLM-as-judge evaluation")
+        judge.llm_judge_eval(
+            answers,
+            judge_llm=adapter.ask,
+            options=base_data["options"],
+            model_name=adapter.model_name,
+        )
 
 
 if __name__ == "__main__":

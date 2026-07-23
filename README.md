@@ -48,6 +48,17 @@ The evaluator uses environment variables for configuration. See `.env.example` f
 - `OPENAI_API_KEY`: Your OpenAI API key (required for OpenAI provider)
 - `OPENAI_MODEL`: OpenAI model to use (default: `gpt-4o-mini`)
 - `OLLAMA_MODEL`: Ollama model to use (default: `gemma3:1b`)
+- `USE_LLM_JUDGE`: Set to `true` to additionally run LLM-as-judge evaluation (default: `false`)
+
+## Evaluation Methods
+
+Every run scores the model with **substring matching**: an aspect counts as predicted if it (or one of the known `options`) appears as a case-insensitive substring of the model's free-text answer. This is fast, free, and deterministic, but brittle — a model that answers "cost" instead of "price" is marked wrong even though it identified the right aspect. It reports three views of the same predictions:
+
+- **Average F1 (macro, per-example)** — F1 computed per review, then averaged across the dataset.
+- **Exact match rate** — the fraction of reviews where the predicted label set exactly equals the expected set (stricter than F1; partial credit doesn't count).
+- **Micro precision / recall / F1** — precision/recall aggregated over every individual label decision in the dataset, rather than averaged per example. Diverges from the macro F1 above when review difficulty (number of expected labels) is uneven across the dataset.
+
+Set `USE_LLM_JUDGE=true` to additionally run **LLM-as-judge** evaluation (`src/llm_eval/core/judge.py`): a second LLM call reads the model's free-text answer and the expected labels, and judges in natural language whether the answer is correct — tolerating paraphrases and synonyms that substring matching would mark wrong. It costs an extra LLM call per test case, so it's opt-in rather than the default.
 
 ## Test Data Management
 
@@ -76,24 +87,24 @@ Test data is stored in `/data/` as **JSON** files — each file is a single docu
 
 **Option 1: Edit the JSON file directly** — append an entry to the `reviews` array.
 
-**Option 2: Load, modify, and save with DataLoader**
+**Option 2: Load, modify, and save with `load_json`**
 ```python
 import json
-from src.llm_eval.data import DataLoader
+from src.llm_eval.data import load_json
 
-data = DataLoader.load_json("data/review_aspects_samples.json")
+data = load_json("data/review_aspects_samples.json")
 data["reviews"].append({"text": "Support was rude and slow to respond.", "expected": ["customer service"]})
 
 with open("data/review_aspects_samples.json", "w") as f:
     json.dump(data, f, indent=2)
 ```
 
-### Using the DataLoader
+### Using `load_json`
 
 ```python
-from src.llm_eval.data import DataLoader
+from src.llm_eval.data import load_json
 
-data = DataLoader.load_json("data/review_aspects_samples.json")
+data = load_json("data/review_aspects_samples.json")
 base_data = {k: v for k, v in data.items() if k != "reviews"}
 test_cases = data["reviews"]
 ```
@@ -134,7 +145,10 @@ test_cases = data["reviews"]
 
 ### Adding New Metrics
 
-Extend `src/llm_eval/core/evaluator.py` with new evaluation functions.
+Add a function to `src/llm_eval/core/evaluator.py` that takes the collected `(predicted, expected)`
+label-set pairs and returns a score — see `exact_match_eval` and `micro_prf1_eval` for examples.
+For evaluation approaches that need their own LLM calls (like judging), add a module alongside
+`src/llm_eval/core/judge.py` instead.
 
 ### Adding New Templates
 
@@ -142,12 +156,13 @@ Add new JSON files to `src/llm_eval/templates/` and update the evaluator to supp
 
 ## Testing
 
-Run the full test suite:
+Install the dev dependencies, then run the full test suite:
 ```bash
+pip install -e ".[dev]"
 python -m pytest tests/ -v
 ```
 
-Tests cover the evaluator logic (question generation, multi-label F1 scoring) and data loading (JSON read). No API keys required — all tests use mocks and temporary files.
+Tests cover the evaluator logic (question generation, F1/exact-match/micro-P/R/F1 scoring), LLM-as-judge verdict parsing, and data loading (JSON read). No API keys required — all tests use mocks and temporary files.
 
 ## Troubleshooting
 
