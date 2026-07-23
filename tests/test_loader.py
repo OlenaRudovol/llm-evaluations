@@ -1,6 +1,6 @@
 import json
 import pytest
-from src.llm_eval.data.loader import DataLoader
+from src.llm_eval.data.loader import load_json
 
 
 @pytest.fixture
@@ -20,10 +20,10 @@ def json_file(tmp_path, sample_records):
 
 class TestLoadJson:
     def test_loads_valid_json(self, json_file):
-        data = DataLoader.load_json(json_file)
+        data = load_json(json_file)
         assert "items" in data
         assert len(data["items"]) == 2
 
     def test_missing_file_raises(self):
         with pytest.raises(FileNotFoundError):
-            DataLoader.load_json("/nonexistent/file.json")
+            load_json("/nonexistent/file.json")

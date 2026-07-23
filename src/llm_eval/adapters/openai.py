@@ -15,7 +15,12 @@ class OpenAIAdapter(LLMAdapter):
         Args:
             model: Model name (e.g., 'gpt-4o-mini')
             api_key: OpenAI API key
+
+        Raises:
+            ValueError: If api_key is not provided.
         """
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY environment variable is required for OpenAI provider")
         self._model = model
         self.client = OpenAI(api_key=api_key, timeout=30.0)
 

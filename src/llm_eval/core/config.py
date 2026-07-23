@@ -1,3 +1,10 @@
+"""Configuration for LLM evaluation, read once from environment variables at import time.
+
+A module already behaves like a cached singleton in Python, so there is no
+need to wrap these values in a class with private attributes and read-only
+properties — `config.llm_provider` works the same either way.
+"""
+
 import os
 from typing import Optional
 
@@ -8,46 +15,15 @@ except ImportError:
     # python-dotenv not installed, continue without .env loading
     pass
 
+# LLM provider settings
+llm_provider: str = os.getenv("LLM_PROVIDER", "ollama").lower()
 
-class Config:
-    """Configuration management for LLM evaluation. Values are cached at initialization."""
+# OpenAI settings
+openai_api_key: Optional[str] = os.getenv("OPENAI_API_KEY")
+openai_model: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
-    def __init__(self):
-        """Initialize config by reading environment variables once."""
-        # LLM Provider settings
-        self._llm_provider = os.getenv("LLM_PROVIDER", "ollama").lower()
+# Ollama settings
+ollama_model: str = os.getenv("OLLAMA_MODEL", "gemma3:1b")
 
-        # OpenAI settings
-        self._openai_api_key = os.getenv("OPENAI_API_KEY")
-        self._openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-
-        # Ollama settings
-        self._ollama_model = os.getenv("OLLAMA_MODEL", "gemma3:1b")
-
-        # Validate OpenAI config if provider is OpenAI
-        if self._llm_provider == "openai" and not self._openai_api_key:
-            raise ValueError("OPENAI_API_KEY environment variable is required for OpenAI provider")
-
-    @property
-    def llm_provider(self) -> str:
-        """Get cached LLM provider ('ollama' or 'openai')."""
-        return self._llm_provider
-
-    @property
-    def openai_api_key(self) -> Optional[str]:
-        """Get cached OpenAI API key."""
-        return self._openai_api_key
-
-    @property
-    def openai_model(self) -> str:
-        """Get cached OpenAI model (default: gpt-4o-mini)."""
-        return self._openai_model
-
-    @property
-    def ollama_model(self) -> str:
-        """Get cached Ollama model (default: gemma3:1b)."""
-        return self._ollama_model
-
-
-# Global config instance
-config = Config()
+# Evaluation settings
+use_llm_judge: bool = os.getenv("USE_LLM_JUDGE", "false").lower() == "true"

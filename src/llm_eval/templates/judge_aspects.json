@@ -1,0 +1,3 @@
+{
+  "judge_template": "You are reviewing an LLM's answer to a labeling question.\n\nQuestion asked: \"{question}\"\nModel's answer: \"{model_answer}\"\n\nThe correct aspects are: {expected_str}\n(all possible aspects: {options_str})\n\nDoes the model's answer correctly and completely identify these aspects? Synonyms or paraphrases count as correct (e.g. \"cost\" for \"price\"), but missing or extra aspects do not.\n\nRespond with a one-sentence justification, then end with exactly one of these lines:\nVERDICT: correct\nVERDICT: incorrect"
+}
