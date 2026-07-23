@@ -16,9 +16,9 @@ Usage:
 import logging
 from pathlib import Path
 
-from src.llm_eval.core import config, evaluator, judge
-from src.llm_eval.data import load_json
-from src.llm_eval.adapters import OllamaAdapter, OpenAIAdapter
+from llm_eval.core import config, evaluator, judge
+from llm_eval.data import load_json
+from llm_eval.adapters import OllamaAdapter, OpenAIAdapter
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)

@@ -9,8 +9,7 @@ latency for tolerance to paraphrasing.
 
 from typing import Callable, List, Tuple
 
-from ._template_loader import load_template
-from .evaluator import TEMPLATES_DIR
+from ._template_loader import TEMPLATES_DIR, load_template
 
 
 def _parse_verdict(judge_response: str) -> bool:

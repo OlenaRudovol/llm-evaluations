@@ -1,6 +1,6 @@
 import json
 import pytest
-from src.llm_eval.data.loader import load_json
+from llm_eval.data.loader import load_json
 
 
 @pytest.fixture

@@ -34,9 +34,9 @@ class OpenAIAdapter(LLMAdapter):
             )
             return response.choices[0].message.content.strip()
         except (IndexError, AttributeError) as e:
-            raise RuntimeError(f"OpenAI API error: Invalid response format - {e}")
+            raise RuntimeError(f"OpenAI API error: Invalid response format - {e}") from e
         except Exception as e:
-            raise RuntimeError(f"OpenAI API error: {type(e).__name__} - {e}")
+            raise RuntimeError(f"OpenAI API error: {type(e).__name__} - {e}") from e
 
     @property
     def model_name(self) -> str:

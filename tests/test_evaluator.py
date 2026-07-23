@@ -1,5 +1,5 @@
 import pytest
-from src.llm_eval.core import evaluator
+from llm_eval.core import evaluator
 
 
 class TestGenerateQuestion:

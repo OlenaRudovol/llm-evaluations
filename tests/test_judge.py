@@ -1,4 +1,4 @@
-from src.llm_eval.core import judge
+from llm_eval.core import judge
 
 
 class TestLlmJudgeEval:

@@ -1,9 +1,6 @@
-from pathlib import Path
 from typing import Callable, Dict, List, Set, Tuple
 
-from ._template_loader import load_template
-
-TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
+from ._template_loader import TEMPLATES_DIR, load_template
 
 
 def generate_question(base_data: Dict, review_item: Dict) -> str:
