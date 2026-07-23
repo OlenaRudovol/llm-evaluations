@@ -15,10 +15,10 @@ Usage:
 """
 
 import logging
-import json
 from pathlib import Path
 
 from src.llm_eval.core import evaluator, config
+from src.llm_eval.data import DataLoader
 from src.llm_eval.adapters import OllamaAdapter, OpenAIAdapter
 
 # Set up logging
@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Load test data from external file
-DATA_FILE = Path(__file__).parent.parent / "data" / "car_color_samples.jsonl"
+DATA_FILE = Path(__file__).parent.parent / "data" / "car_color_samples.json"
 
 
 def create_adapter():
@@ -54,10 +54,8 @@ def evaluate():
     adapter = create_adapter()
     
     logger.info(f"Loading test data from {DATA_FILE}")
-    
-    # Load the test data structure
-    with open(DATA_FILE, 'r') as f:
-        data = json.load(f)
+
+    data = DataLoader.load_json(str(DATA_FILE))
     
     # Extract base data and create test cases from images
     base_data = {k: v for k, v in data.items() if k != "images"}
