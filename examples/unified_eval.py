@@ -6,8 +6,6 @@ The provider and model are configured via environment variables:
 - OLLAMA_MODEL: Model for Ollama (default: gemma3:1b)
 - OPENAI_MODEL: Model for OpenAI (default: gpt-4o-mini)
 - OPENAI_API_KEY: Required for OpenAI provider
-- OLLAMA_HOST: Optional Ollama host (default: localhost)
-- OLLAMA_PORT: Optional Ollama port (default: 11434)
 
 Usage:
     python -m examples.unified_eval              # Uses default provider (Ollama)

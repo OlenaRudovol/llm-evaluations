@@ -23,9 +23,7 @@ class Config:
         
         # Ollama settings
         self._ollama_model = os.getenv("OLLAMA_MODEL", "gemma3:1b")
-        self._ollama_host = os.getenv("OLLAMA_HOST")
-        self._ollama_port = os.getenv("OLLAMA_PORT")
-        
+
         # Validate OpenAI config if provider is OpenAI
         if self._llm_provider == "openai" and not self._openai_api_key:
             raise ValueError("OPENAI_API_KEY environment variable is required for OpenAI provider")
@@ -49,16 +47,6 @@ class Config:
     def ollama_model(self) -> str:
         """Get cached Ollama model (default: gemma3:1b)."""
         return self._ollama_model
-
-    @property
-    def ollama_host(self) -> Optional[str]:
-        """Get cached Ollama host (optional)."""
-        return self._ollama_host
-
-    @property
-    def ollama_port(self) -> Optional[str]:
-        """Get cached Ollama port (optional)."""
-        return self._ollama_port
 
 
 # Global config instance

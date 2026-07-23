@@ -34,8 +34,7 @@ llm-eval/
 │   ├── adapters/          # LLM provider adapters (Ollama, OpenAI, etc.)
 │   ├── core/              # Evaluation engine and configuration
 │   ├── data/              # Data loading utilities
-│   ├── templates/         # Question/prompt templates
-│   └── utils/             # Helper utilities
+│   └── templates/         # Question/prompt templates
 ├── examples/              # Demo scripts and usage examples
 ├── data/                  # Datasets
 ├── generate_samples.py    # Script to generate sample test data
@@ -50,8 +49,6 @@ The evaluator uses environment variables for configuration. See `.env.example` f
 - `OPENAI_API_KEY`: Your OpenAI API key (required for OpenAI provider)
 - `OPENAI_MODEL`: OpenAI model to use (default: `gpt-4o-mini`)
 - `OLLAMA_MODEL`: Ollama model to use (default: `gemma3:1b`)
-- `OLLAMA_HOST`: Ollama server host (default: `localhost`)
-- `OLLAMA_PORT`: Ollama server port (default: `11434`)
 
 ## Test Data Management
 
