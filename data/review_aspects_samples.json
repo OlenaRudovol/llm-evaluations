@@ -1,0 +1,38 @@
+{
+  "attribute": "aspects",
+  "options": ["price", "quality", "shipping", "customer service", "packaging"],
+  "reviews": [
+    {
+      "text": "The product broke after two days and it was way overpriced for what you get. Definitely not worth it.",
+      "expected": ["price", "quality"]
+    },
+    {
+      "text": "Arrived three days late in a crushed box, but the item itself works perfectly.",
+      "expected": ["shipping", "packaging"]
+    },
+    {
+      "text": "I reached out to support about a billing issue and they resolved it within minutes. Great experience overall.",
+      "expected": ["customer service"]
+    },
+    {
+      "text": "Solid build quality and a fair price point. Would buy again.",
+      "expected": ["quality", "price"]
+    },
+    {
+      "text": "The box was crushed in transit and support took over a week to respond to my complaint.",
+      "expected": ["shipping", "packaging", "customer service"]
+    },
+    {
+      "text": "Everything about this purchase was perfect, no complaints at all.",
+      "expected": []
+    },
+    {
+      "text": "Way too expensive for such a flimsy item that stopped working after a week.",
+      "expected": ["price", "quality"]
+    },
+    {
+      "text": "Fast shipping, well packaged, but customer support ignored my emails.",
+      "expected": ["shipping", "packaging", "customer service"]
+    }
+  ]
+}

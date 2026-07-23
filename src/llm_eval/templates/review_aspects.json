@@ -1,0 +1,3 @@
+{
+  "question_template": "A customer left this review: \"{text}\"\n\nWhich of the following {attribute} does the review mention: {options_str}?\n\nRespond with all that apply, separated by commas. If none apply, respond with 'none'."
+}

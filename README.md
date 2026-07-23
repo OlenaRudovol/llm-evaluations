@@ -37,7 +37,6 @@ llm-eval/
 │   └── templates/         # Question/prompt templates
 ├── examples/              # Demo scripts and usage examples
 ├── data/                  # Datasets
-├── generate_samples.py    # Script to generate sample test data
 └── tests/                 # Unit tests
 ```
 
@@ -52,42 +51,40 @@ The evaluator uses environment variables for configuration. See `.env.example` f
 
 ## Test Data Management
 
-Test data is stored in `/data/` as **JSON** files — each file is a single document with shared metadata (`count`, `attribute`, `options`) plus a list of individual test cases (`images`). **Both OpenAI and Ollama evaluators load the same file** to enable fair model comparison.
+Test data is stored in `/data/` as **JSON** files — each file is a single document with shared metadata (`attribute`, `options`) plus a list of individual test cases (`reviews`). **Both OpenAI and Ollama evaluators load the same file** to enable fair model comparison.
 
 ### Data Files
 
-- `data/car_color_samples.json` — test cases for car color classification used by both Ollama and OpenAI evaluators (for direct comparison)
-- `data/shoe_color_samples.json` — test cases for shoe color classification
+- `data/review_aspects_samples.json` — customer reviews tagged with which aspects (price, quality, shipping, customer service, packaging) each one mentions. A review can mention zero, one, or several aspects.
 
 ### File Structure
 
 ```json
 {
-  "count": 1,
-  "attribute": "car colour",
-  "options": ["red", "blue", "grey", "white", "black", "yellow"],
-  "images": [
-    { "expected": "red", "url": "https://example.com/image.jpg" }
+  "attribute": "aspects",
+  "options": ["price", "quality", "shipping", "customer service", "packaging"],
+  "reviews": [
+    { "text": "Great value but it broke after a week.", "expected": ["price", "quality"] }
   ]
 }
 ```
 
-- `count`, `attribute`, `options` are shared across every test case in the file
-- `images` is the list of individual test cases, each with its own `url` and `expected` answer
+- `attribute`, `options` are shared across every test case in the file
+- `reviews` is the list of individual test cases, each with its own `text` and `expected` list of aspects (can be empty, one, or several)
 
 ### Adding More Samples
 
-**Option 1: Edit the JSON file directly** — append an entry to the `images` array.
+**Option 1: Edit the JSON file directly** — append an entry to the `reviews` array.
 
 **Option 2: Load, modify, and save with DataLoader**
 ```python
 import json
 from src.llm_eval.data import DataLoader
 
-data = DataLoader.load_json("data/car_color_samples.json")
-data["images"].append({"url": "https://example.com/new.jpg", "expected": "red"})
+data = DataLoader.load_json("data/review_aspects_samples.json")
+data["reviews"].append({"text": "Support was rude and slow to respond.", "expected": ["customer service"]})
 
-with open("data/car_color_samples.json", "w") as f:
+with open("data/review_aspects_samples.json", "w") as f:
     json.dump(data, f, indent=2)
 ```
 
@@ -96,9 +93,9 @@ with open("data/car_color_samples.json", "w") as f:
 ```python
 from src.llm_eval.data import DataLoader
 
-data = DataLoader.load_json("data/car_color_samples.json")
-base_data = {k: v for k, v in data.items() if k != "images"}
-test_cases = data["images"]
+data = DataLoader.load_json("data/review_aspects_samples.json")
+base_data = {k: v for k, v in data.items() if k != "reviews"}
+test_cases = data["reviews"]
 ```
 
 ### Best Practices for Test Data
@@ -150,7 +147,7 @@ Run the full test suite:
 python -m pytest tests/ -v
 ```
 
-Tests cover the evaluator logic (question generation, accuracy calculation) and data loading (JSON read). No API keys required — all tests use mocks and temporary files.
+Tests cover the evaluator logic (question generation, multi-label F1 scoring) and data loading (JSON read). No API keys required — all tests use mocks and temporary files.
 
 ## Troubleshooting
 

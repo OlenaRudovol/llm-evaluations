@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Load test data from external file
-DATA_FILE = Path(__file__).parent.parent / "data" / "car_color_samples.json"
+DATA_FILE = Path(__file__).parent.parent / "data" / "review_aspects_samples.json"
 
 
 def create_adapter():
@@ -54,16 +54,18 @@ def evaluate():
     logger.info(f"Loading test data from {DATA_FILE}")
 
     data = DataLoader.load_json(str(DATA_FILE))
-    
-    # Extract base data and create test cases from images
-    base_data = {k: v for k, v in data.items() if k != "images"}
+
+    # Extract base data and create test cases from reviews
+    base_data = {k: v for k, v in data.items() if k != "reviews"}
     test_cases = [
-        (evaluator.generate_question(base_data, image_item), image_item["expected"])
-        for image_item in data["images"]
+        (evaluator.generate_question(base_data, review_item), review_item["expected"])
+        for review_item in data["reviews"]
     ]
-    
+
     logger.info(f"Loaded {len(test_cases)} test cases")
-    evaluator.simple_exact_match_eval(test_cases, adapter.ask, model_name=adapter.model_name)
+    evaluator.multi_label_eval(
+        test_cases, adapter.ask, options=base_data["options"], model_name=adapter.model_name
+    )
 
 
 if __name__ == "__main__":

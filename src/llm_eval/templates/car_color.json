@@ -1,3 +1,0 @@
-{
-  "question_template": "Select '{count}' best match '{attribute}' from set [{options_str}] for the image {url}"
-}

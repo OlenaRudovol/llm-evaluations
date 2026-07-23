@@ -5,33 +5,31 @@ from src.llm_eval.core import evaluator
 class TestGenerateQuestion:
     def setup_method(self):
         self.base_data = {
-            "count": 1,
-            "attribute": "car colour",
-            "options": ["red", "blue", "green", "yellow"],
+            "attribute": "aspects",
+            "options": ["price", "quality", "shipping", "customer service"],
         }
-        self.image_item = {
-            "url": "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2",
-            "expected": "yellow",
+        self.review_item = {
+            "text": "Great value but it broke after a week.",
+            "expected": ["price", "quality"],
         }
 
     def test_generates_question_with_valid_data(self):
-        question = evaluator.generate_question(self.base_data, self.image_item)
-        assert "car colour" in question
-        assert "blue" in question
-        assert "red" in question
-        assert "green" in question
-        assert "yellow" in question
-        assert "https://images.unsplash.com" in question
+        question = evaluator.generate_question(self.base_data, self.review_item)
+        assert "price" in question
+        assert "quality" in question
+        assert "shipping" in question
+        assert "customer service" in question
+        assert "Great value but it broke after a week." in question
 
     @pytest.mark.parametrize(
         "missing_from, expected_match",
         [
             ("base_data", "Missing required keys in base data"),
-            ("image_item", "Missing required keys in image item"),
+            ("review_item", "Missing required keys in review item"),
         ],
     )
     def test_missing_required_keys(self, missing_from, expected_match):
-        kwargs = {"base_data": self.base_data, "image_item": self.image_item}
+        kwargs = {"base_data": self.base_data, "review_item": self.review_item}
         kwargs[missing_from] = {}
         with pytest.raises(KeyError, match=expected_match):
             evaluator.generate_question(**kwargs)
@@ -40,48 +38,54 @@ class TestGenerateQuestion:
     def test_invalid_options_type_raises(self, invalid_options):
         self.base_data["options"] = invalid_options
         with pytest.raises(ValueError, match="'options' must be a list or tuple"):
-            evaluator.generate_question(self.base_data, self.image_item)
+            evaluator.generate_question(self.base_data, self.review_item)
 
     @pytest.mark.parametrize(
         "options, expected_substring",
         [
-            (["red", "blue", "green"], "red, blue, green"),
-            (("red", "blue"), "red, blue"),
-            (["red"], "red"),
+            (["price", "quality", "shipping"], "price, quality, shipping"),
+            (("price", "quality"), "price, quality"),
+            (["price"], "price"),
         ],
         ids=["list", "tuple", "single_item"],
     )
     def test_options_formatting(self, options, expected_substring):
         self.base_data["options"] = options
-        question = evaluator.generate_question(self.base_data, self.image_item)
+        question = evaluator.generate_question(self.base_data, self.review_item)
         assert expected_substring in question
 
 
-class TestSimpleExactMatchEval:
+class TestMultiLabelEval:
+    OPTIONS = ["price", "quality", "shipping", "customer service", "packaging"]
+
     @pytest.mark.parametrize(
-        "test_cases, answers, expected_accuracy",
+        "expected, answer, expected_f1",
         [
-            ([("Q1", "red"), ("Q2", "blue")], ["red", "blue"], 1.0),
-            ([("Q1", "red"), ("Q2", "blue")], ["green", "green"], 0.0),
-            ([("Q1", "red"), ("Q2", "blue")], ["red", "green"], 0.5),
-            ([("Q1", "red"), ("Q2", "blue"), ("Q3", "green")], ["red", "x", "green"], 2 / 3),
-            ([("Q1", "Red")], ["RED"], 1.0),
-            ([("Q1", "red")], ["The color is red I think"], 1.0),
-            ([], [], 0.0),
+            (["price", "quality"], "This review mentions price and quality.", 1.0),
+            (["price"], "The shipping was great.", 0.0),
+            (["price", "quality", "shipping"], "Mentions price only.", 0.5),
+            ([], "Everything about this purchase was perfect, no complaints at all.", 1.0),
+            ([], "The price was way too high.", 0.0),
+            (["Price"], "The PRICE is too high.", 1.0),
         ],
         ids=[
             "all_correct",
             "all_wrong",
             "partial_match",
-            "two_of_three",
+            "both_empty",
+            "false_positive",
             "case_insensitive",
-            "substring_match",
-            "empty_test_cases",
         ],
     )
-    def test_accuracy_calculation(self, test_cases, answers, expected_accuracy):
-        answers_iter = iter(answers)
-        accuracy = evaluator.simple_exact_match_eval(
-            test_cases, lambda q: next(answers_iter), model_name="mock-model"
+    def test_f1_scoring(self, expected, answer, expected_f1):
+        test_cases = [("Q1", expected)]
+        f1 = evaluator.multi_label_eval(
+            test_cases, lambda q: answer, options=self.OPTIONS, model_name="mock-model"
         )
-        assert accuracy == pytest.approx(expected_accuracy)
+        assert f1 == pytest.approx(expected_f1)
+
+    def test_empty_test_cases(self):
+        f1 = evaluator.multi_label_eval(
+            [], lambda q: "anything", options=self.OPTIONS, model_name="mock-model"
+        )
+        assert f1 == 0.0

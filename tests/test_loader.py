@@ -6,8 +6,8 @@ from src.llm_eval.data.loader import DataLoader
 @pytest.fixture
 def sample_records():
     return [
-        {"count": 1, "attribute": "car colour", "options": ["red", "blue"]},
-        {"count": 2, "attribute": "shoe colour", "options": ["black", "white"]},
+        {"text": "Great value but it broke after a week.", "expected": ["price", "quality"]},
+        {"text": "Arrived late but well packaged.", "expected": ["shipping", "packaging"]},
     ]
 
 
