@@ -1,98 +1,64 @@
-# LLM Evaluation Framework
+# llm-eval
 
-An open-source framework for evaluating Large Language Models (LLMs) with extensible adapters, templates, datasets, and metrics. Perfect for comparing model performance across different providers and tasks.
+Project for evaluating image-based LLM/evaluation pipelines.
 
-## Quick Start
-
-1. **Install the package**:
-   ```bash
-   pip install -e .
-   ```
-
-2. **Set up environment variables**: Copy `.env.example` to `.env` and fill in your API keys:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your API keys
-   ```
-
-3. **Run the evaluator** with your preferred LLM provider:
-   ```bash
-   # Using default provider (Ollama)
-   python -m examples.unified_eval
-   
-   # Or use Anthropic
-   LLM_PROVIDER=anthropic python -m examples.unified_eval
-
-   # Or use Google Gemini (free tier at aistudio.google.com)
-   LLM_PROVIDER=google python -m examples.unified_eval
-
-   # Or use OpenAI
-   LLM_PROVIDER=openai python -m examples.unified_eval
-   ```
-
-4. If running locally, install Ollama (ollama.com), pull a model: `ollama pull gemma3:1b`
-
-## Project Structure
-
-```
 llm-eval/
-├── src/llm_eval/          # Core package
-│   ├── adapters/          # LLM provider adapters (Ollama, OpenAI, Anthropic, Google)
-│   ├── core/              # Evaluation engine and configuration
-│   ├── data/              # Data loading utilities
-│   ├── templates/         # Question/prompt templates
-│   └── utils/             # Helper utilities
-├── examples/              # Demo scripts and usage examples
-├── scripts/               # Utility scripts (data generation, etc.)
-├── data/                  # Datasets
-├── tests/                 # Unit tests
-└── docs/                  # Documentation
-```
+├── src/                    # Core library
+│   ├── llm_eval/           # Evaluator implementation
+│   ├── templates/          # Question/prompt templates
+│   └── utils/              # Helper utilities
+├── examples/               # Demo scripts and usage examples
+├── generate_samples.py     # Script to generate sample test data
+└── tests/                  # Unit tests
 
 ## Configuration
 
-The evaluator uses environment variables for configuration. See `.env.example` for all available options:
-
-- `LLM_PROVIDER`: Which provider to use (default: `ollama`, options: `ollama`, `openai`, `anthropic`, `google`)
-- `ANTHROPIC_API_KEY`: Your Anthropic API key (required for Anthropic provider)
-- `ANTHROPIC_MODEL`: Anthropic model to use (default: `claude-haiku-4-5-20251001`)
-- `OPENAI_API_KEY`: Your OpenAI API key (required for OpenAI provider)
-- `OPENAI_MODEL`: OpenAI model to use (default: `gpt-4o-mini`)
-- `GOOGLE_API_KEY`: Your Google API key (required for Google provider, free at aistudio.google.com)
-- `GOOGLE_MODEL`: Google model to use (default: `gemini-2.0-flash`)
-- `OLLAMA_MODEL`: Ollama model to use (default: `gemma3:1b`)
-- `OLLAMA_HOST`: Ollama server host (default: `localhost`)
-- `OLLAMA_PORT`: Ollama server port (default: `11434`)
+The evaluator uses environment variables for configuration. See `.env.example` for details.
 
 ## Test Data Management
 
-Test data is stored in `/data/` as **JSONL** (JSON Lines) files — one JSON object per line. **Both OpenAI and Ollama evaluators use the same dataset** to enable fair model comparison.
-
-This format:
-- Scales to millions of samples without memory issues (stream-friendly)
-- Is human-readable and easy to version control
-- Supports incremental loading and filtering
+Test data is stored in `/data/` as JSON files — each file is a single document with shared metadata (`count`, `attribute`, `options`) plus a list of individual test cases (`images`). Both OpenAI and Ollama evaluators load the same file to enable fair model comparison.
 
 ### Data Files
 
-- `data/car_color_samples.jsonl` — test cases for car color classification used by all provider evaluators (for direct comparison)
+- `data/car_color_samples.json` — test cases for car color classification used by both Ollama and OpenAI evaluators (for direct comparison)
+- `data/shoe_color_samples.json` — test cases for shoe color classification
+
+### File Structure
+
+Each test data file contains top-level metadata that applies to all test cases in the file, plus an `images` array with per-sample entries:
+
+```json
+{
+  "count": 1,
+  "attribute": "car colour",
+  "options": ["red", "blue", "grey", "white", "black", "yellow"],
+  "images": [
+    { "expected": "red", "url": "https://example.com/image.jpg" }
+  ]
+}
+```
+
+- `count`, `attribute`, `options` are shared across every test case in the file
+- `images` is the list of individual test cases, each with its own `url` and `expected` answer
 
 ### Adding More Samples
 
-**Option 1: Edit the JSONL file directly**
-```jsonl
-{"count": 1, "attribute": "car colour", "options": ["red", "blue"], "url": "https://example.com/image.jpg", "expected": "red"}
-```
+**Option 1: Edit the JSON file directly** — append an entry to the `images` array.
 
-**Option 2: Generate samples programmatically**
+**Option 2: Load, modify, and save with DataLoader**
+
 ```python
+import json
 from src.llm_eval.data import DataLoader
 
-samples = [
-    {"count": 1, "attribute": "car colour", "options": ["red", "blue"], "url": "https://example.com/image.jpg", "expected": "red"},
-]
-
-DataLoader.save_jsonl(samples, "data/my_samples.jsonl")
+# Load file
+data = DataLoader.load_json("data/car_color_samples.json")
+# Append a new test case
+data["images"].append({"url": "https://example.com/new.jpg", "expected": "red"})
+# Save back
+with open("data/car_color_samples.json", "w") as f:
+    json.dump(data, f, indent=2)
 ```
 
 ### Using the DataLoader
@@ -100,81 +66,41 @@ DataLoader.save_jsonl(samples, "data/my_samples.jsonl")
 ```python
 from src.llm_eval.data import DataLoader
 
-# Load a JSONL file
-samples = DataLoader.load_jsonl("data/my_samples.jsonl")
-
-# Stream large datasets (memory efficient)
-for sample in DataLoader.stream_jsonl("data/my_samples.jsonl"):
-    print(sample)
-
-# Save samples to JSONL
-DataLoader.save_jsonl(samples, "data/output.jsonl")
+# Load the JSON file
+data = DataLoader.load_json("data/car_color_samples.json")
+# Separate base metadata from test cases
+base_data = {k: v for k, v in data.items() if k != "images"}
+test_cases = data["images"]
 ```
 
-### Best Practices for Large Datasets (100-3000+ samples)
+### Best Practices for Test Data
 
-1. **Use JSONL format** — streams efficiently, no memory bloat
-2. **Version your data** — tag datasets with dates or version numbers
-3. **Make data regenerable** — script your data generation (not hand-curated)
-4. **Organize by split** — keep train/test/val separate or tagged
-5. **Document schema** — add comments in your data files about expected fields
-6. **Consider data privacy** — don't commit sensitive test data to git
-
-### Supported Formats
-
-- **JSONL** (recommended) — `/data/samples.jsonl` (memory-efficient for large datasets)
+1. **Version your data** — tag datasets with dates or version numbers
+2. **Make data regenerable** — script your data generation (not hand-curated)
+3. **Organize by split** — keep train/test/val separate or tagged
+4. **Document schema** — add comments in your data files about expected fields
+5. **Consider data privacy** — don't commit sensitive test data to git
 
 ## Extending the Framework
 
-### Adding New LLM Providers
-
-1. Create a new adapter in `src/llm_eval/adapters/`:
-   ```python
-   from .base import LLMAdapter
-
-   class AnthropicAdapter(LLMAdapter):
-       def __init__(self, model: str, api_key: str):
-           # Initialize client
-           pass
-       
-       def ask(self, question: str) -> str:
-           # Implement API call
-           pass
-       
-       @property
-       def model_name(self) -> str:
-           return self._model
-   ```
-
-2. Update `src/llm_eval/adapters/__init__.py` to export it
-
-3. Update `examples/unified_eval.py` to handle the new provider
-
-### Adding New Metrics
-
 Extend `src/llm_eval/core/evaluator.py` with new evaluation functions.
 
-### Adding New Templates
-
 Add new JSON files to `src/llm_eval/templates/` and update the evaluator to support them.
+
+## Testing
+
+Run the full test suite:
+
+```bash
+python -m pytest tests/ -v
+```
+
+Tests cover the evaluator logic (question generation, accuracy calculation) and data loading (JSON read). No API keys required — all tests use mocks and temporary files.
 
 ## Troubleshooting
 
 If you get a `ConnectionError` when running the Ollama evaluator:
 
-1. **Start the Ollama server** (if not already running):
-   ```sh
-   ollama serve &
-   ```
-2. **Pull the model** (if not downloaded):
-   ```sh
-   ollama pull gemma3:1b
-   ```
-3. **Check server status**:
-   ```sh
-   ps aux | grep ollama
-   ```
-
-The devcontainer should start the server automatically, but you may need to restart it manually.
-
-For demonstration: just share the repo link — anyone with a GitHub account can open it in Codespaces and run it.
+- Ensure the Ollama daemon is running and reachable at the configured host/port.
+- Check any required API keys or environment variables are set.
+- Run tests with network calls mocked when possible to avoid external dependencies.
