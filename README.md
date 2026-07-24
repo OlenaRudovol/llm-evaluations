@@ -58,11 +58,12 @@ The evaluator uses environment variables for configuration. See `.env.example` f
 
 ## Evaluation Methods
 
-Every run scores the model with **substring matching**: an aspect counts as predicted if it (or one of the known `options`) appears as a case-insensitive substring of the model's free-text answer. This is fast, free, and deterministic, but brittle — a model that answers "cost" instead of "price" is marked wrong even though it identified the right aspect. It reports three views of the same predictions:
+Every run scores the model with **substring matching**: an aspect counts as predicted if it (or one of the known `options`) appears as a case-insensitive substring of the model's free-text answer. This is fast, free, and deterministic, but brittle — a model that answers "cost" instead of "price" is marked wrong even though it identified the right aspect. It reports four views of the same predictions:
 
 - **Average F1 (macro, per-example)** — F1 computed per review, then averaged across the dataset.
 - **Exact match rate** — the fraction of reviews where the predicted label set exactly equals the expected set (stricter than F1; partial credit doesn't count).
 - **Micro precision / recall / F1** — precision/recall aggregated over every individual label decision in the dataset, rather than averaged per example. Diverges from the macro F1 above when review difficulty (number of expected labels) is uneven across the dataset.
+- **Per-label precision / recall / F1** (`evaluator.per_label_prf1`) — the same P/R/F1 computed separately for each label (price, quality, shipping, ...). The metrics above are aggregates and can hide that a model is reliable on one label and unreliable on another; per-label breakdown is how you'd actually find that out. Each label also reports `support` — how many reviews actually expected it — since a perfect score backed by one example isn't trustworthy.
 
 Set `USE_LLM_JUDGE=true` to additionally run **LLM-as-judge** evaluation (`src/llm_eval/core/judge.py`): a second LLM call reads the model's free-text answer and the expected labels, and judges in natural language whether the answer is correct — tolerating paraphrases and synonyms that substring matching would mark wrong. It costs an extra LLM call per test case, so it's opt-in rather than the default.
 
@@ -119,11 +120,12 @@ test_cases = data["reviews"]
 
 ### Best Practices for Test Data
 
-1. **Version your data** — tag datasets with dates or version numbers
+1. **Version your data** — every data file has top-level `version` and `updated` fields. Bump `version` (and update `updated`) whenever you add, remove, or relabel reviews, so eval results can be tied to the exact dataset revision that produced them — a result from `version: "1.0"` isn't comparable to one from `version: "2.0"`. `tests/test_data_integrity.py` fails if either field is missing.
 2. **Make data regenerable** — script your data generation (not hand-curated)
 3. **Organize by split** — keep train/test/val separate or tagged
 4. **Document schema** — add comments in your data files about expected fields
 5. **Consider data privacy** — don't commit sensitive test data to git
+6. **Validate integrity automatically** — `tests/test_data_integrity.py` checks the real dataset for label drift (every `expected` label must exist in `options`), duplicate `options` entries, and duplicate review text. Run it whenever you edit `data/review_aspects_samples.json`.
 
 ## Extending the Framework
 

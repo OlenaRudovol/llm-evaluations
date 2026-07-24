@@ -98,10 +98,12 @@ class TestMultiLabelEval:
 
     def test_empty_answers(self):
         result = evaluator.multi_label_eval([], options=self.OPTIONS, model_name="mock-model")
-        assert result == {
-            "avg_f1": 0.0,
-            "exact_match": 0.0,
-            "micro": {"precision": 0.0, "recall": 0.0, "f1": 0.0},
+        assert result["avg_f1"] == 0.0
+        assert result["exact_match"] == 0.0
+        assert result["micro"] == {"precision": 0.0, "recall": 0.0, "f1": 0.0}
+        assert result["per_label"] == {
+            label: {"precision": 0.0, "recall": 0.0, "f1": 0.0, "support": 0}
+            for label in self.OPTIONS
         }
 
 
@@ -118,6 +120,36 @@ class TestExactMatchEval:
     )
     def test_exact_match_rate(self, pairs, expected_rate):
         assert evaluator.exact_match_eval(pairs) == pytest.approx(expected_rate)
+
+
+class TestPerLabelPrf1:
+    LABELS = ["price", "quality", "shipping"]
+
+    def test_perfect_predictions(self):
+        pairs = [({"price"}, {"price"}), ({"quality"}, {"quality"})]
+        result = evaluator.per_label_prf1(pairs, self.LABELS)
+        assert result["price"] == {"precision": 1.0, "recall": 1.0, "f1": 1.0, "support": 1}
+        assert result["quality"] == {"precision": 1.0, "recall": 1.0, "f1": 1.0, "support": 1}
+        assert result["shipping"] == {"precision": 0.0, "recall": 0.0, "f1": 0.0, "support": 0}
+
+    def test_mixed_per_label(self):
+        # price: correctly predicted (TP). quality: predicted but not expected (FP).
+        # shipping: expected but missed (FN).
+        pairs = [({"price", "quality"}, {"price", "shipping"})]
+        result = evaluator.per_label_prf1(pairs, self.LABELS)
+        assert result["price"] == {"precision": 1.0, "recall": 1.0, "f1": 1.0, "support": 1}
+        assert result["quality"] == {"precision": 0.0, "recall": 0.0, "f1": 0.0, "support": 0}
+        assert result["shipping"] == {"precision": 0.0, "recall": 0.0, "f1": 0.0, "support": 1}
+
+    def test_case_insensitive_label_matching(self):
+        pairs = [({"price"}, {"price"})]
+        result = evaluator.per_label_prf1(pairs, ["Price"])
+        assert result["Price"]["f1"] == 1.0
+
+    def test_empty_pairs(self):
+        result = evaluator.per_label_prf1([], self.LABELS)
+        for label in self.LABELS:
+            assert result[label] == {"precision": 0.0, "recall": 0.0, "f1": 0.0, "support": 0}
 
 
 class TestMicroPrf1Eval:
