@@ -33,6 +33,38 @@
     {
       "text": "Fast shipping, well packaged, but customer support ignored my emails.",
       "expected": ["shipping", "packaging", "customer service"]
+    },
+    {
+      "text": "A bit more expensive than I expected, but everything else about the purchase was fine.",
+      "expected": ["price"]
+    },
+    {
+      "text": "It stopped working within a week -- really poor build quality.",
+      "expected": ["quality"]
+    },
+    {
+      "text": "My order didn't arrive until almost three weeks after I ordered it.",
+      "expected": ["shipping"]
+    },
+    {
+      "text": "The box itself was beautifully wrapped, like a little gift.",
+      "expected": ["packaging"]
+    },
+    {
+      "text": "This gift brought back priceless memories of my childhood, thank you!",
+      "expected": []
+    },
+    {
+      "text": "I spent some quality time with my family setting this up together.",
+      "expected": []
+    },
+    {
+      "text": "My order finally landed on my doorstep today after what felt like forever.",
+      "expected": ["shipping"]
+    },
+    {
+      "text": "Really happy with everything -- support did take a couple extra days to reply, but they sorted it out.",
+      "expected": ["customer service"]
     }
   ]
 }

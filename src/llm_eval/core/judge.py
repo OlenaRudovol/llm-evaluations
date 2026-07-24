@@ -27,7 +27,6 @@ def _parse_verdict(judge_response: str) -> bool:
 def llm_judge_eval(
     answers: List[Tuple[str, str, List[str]]],
     judge_llm: Callable[[str], str],
-    options: List[str],
     model_name: str = "",
 ) -> float:
     """Judge (question, answer, expected_labels) triples with an LLM instead of substring matching.
@@ -36,13 +35,14 @@ def llm_judge_eval(
     triples can be scored by both `multi_label_eval` and this function
     without asking the model twice. For each triple, asks `judge_llm`
     whether the answer correctly and completely identifies the expected
-    aspects. Prints a per-example report and returns the fraction of examples
-    judged correct.
+    aspects (and only those — the judge is deliberately not shown the full
+    options list, since a weak judge model tends to conflate "every possible
+    aspect" with "every expected aspect" and misjudges accordingly). Prints a
+    per-example report and returns the fraction of examples judged correct.
     """
     header = f"LLM-as-judge evaluation: {model_name}" if model_name else "LLM-as-judge evaluation"
     print(f"{header}\n")
 
-    options_str = ", ".join(options)
     template = load_template(TEMPLATES_DIR / "judge_aspects.json", "judge_template")
 
     correct = 0
@@ -53,7 +53,6 @@ def llm_judge_eval(
             question=question,
             model_answer=answer,
             expected_str=expected_str,
-            options_str=options_str,
         )
         verdict_response = judge_llm(judge_prompt)
         is_correct = _parse_verdict(verdict_response)

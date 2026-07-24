@@ -25,5 +25,10 @@ openai_model: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 # Ollama settings
 ollama_model: str = os.getenv("OLLAMA_MODEL", "gemma3:1b")
 
+# Groq settings
+groq_api_key: Optional[str] = os.getenv("GROQ_API_KEY")
+groq_model: str = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+
 # Evaluation settings
 use_llm_judge: bool = os.getenv("USE_LLM_JUDGE", "false").lower() == "true"
+judge_model: Optional[str] = os.getenv("JUDGE_MODEL")  # unset -> judge with the same model being tested
