@@ -22,6 +22,9 @@ An open-source framework for evaluating Large Language Models (LLMs) with extens
    
    # Or use OpenAI
    LLM_PROVIDER=openai python -m examples.unified_eval
+
+   # Or use Groq (free tier at console.groq.com — hosts Llama, Gemma, Mixtral)
+   LLM_PROVIDER=groq python -m examples.unified_eval
    ```
 
 4. If running locally, install Ollama (ollama.com), pull a model: `ollama pull gemma3:1b`
@@ -31,7 +34,7 @@ An open-source framework for evaluating Large Language Models (LLMs) with extens
 ```
 llm-eval/
 ├── src/llm_eval/          # Core package
-│   ├── adapters/          # LLM provider adapters (Ollama, OpenAI, etc.)
+│   ├── adapters/          # LLM provider adapters (Ollama, OpenAI, Groq, etc.)
 │   ├── core/              # Evaluation engine and configuration
 │   ├── data/              # Data loading utilities
 │   └── templates/         # Question/prompt templates
@@ -44,11 +47,14 @@ llm-eval/
 
 The evaluator uses environment variables for configuration. See `.env.example` for all available options:
 
-- `LLM_PROVIDER`: Which provider to use (default: `ollama`, options: `ollama`, `openai`)
+- `LLM_PROVIDER`: Which provider to use (default: `ollama`, options: `ollama`, `openai`, `groq`)
 - `OPENAI_API_KEY`: Your OpenAI API key (required for OpenAI provider)
 - `OPENAI_MODEL`: OpenAI model to use (default: `gpt-4o-mini`)
 - `OLLAMA_MODEL`: Ollama model to use (default: `gemma3:1b`)
+- `GROQ_API_KEY`: Your Groq API key (required for Groq provider; free tier, no card required at [console.groq.com](https://console.groq.com))
+- `GROQ_MODEL`: Groq model to use (default: `llama-3.1-8b-instant`)
 - `USE_LLM_JUDGE`: Set to `true` to additionally run LLM-as-judge evaluation (default: `false`)
+- `JUDGE_MODEL`: Model to use as the judge, on the same provider as `LLM_PROVIDER` (default: unset — judge with the same model being tested)
 
 ## Evaluation Methods
 
@@ -60,9 +66,11 @@ Every run scores the model with **substring matching**: an aspect counts as pred
 
 Set `USE_LLM_JUDGE=true` to additionally run **LLM-as-judge** evaluation (`src/llm_eval/core/judge.py`): a second LLM call reads the model's free-text answer and the expected labels, and judges in natural language whether the answer is correct — tolerating paraphrases and synonyms that substring matching would mark wrong. It costs an extra LLM call per test case, so it's opt-in rather than the default.
 
+The judge is only ever shown the expected labels for the current review, never the full list of possible aspects — an earlier version included that list and a small/fast judge model would frequently conflate "every possible aspect" with "every expected aspect," marking correct answers as incorrect for not covering aspects that were never expected. Even with that fixed, a weak judge model can still misjudge nuanced cases (or simply reason incorrectly) — if judge verdicts look unreliable, set `JUDGE_MODEL` to a stronger model on the same provider (e.g. `JUDGE_MODEL=llama-3.3-70b-versatile` when `LLM_PROVIDER=groq`) rather than trusting a small/fast model to grade itself.
+
 ## Test Data Management
 
-Test data is stored in `/data/` as **JSON** files — each file is a single document with shared metadata (`attribute`, `options`) plus a list of individual test cases (`reviews`). **Both OpenAI and Ollama evaluators load the same file** to enable fair model comparison.
+Test data is stored in `/data/` as **JSON** files — each file is a single document with shared metadata (`attribute`, `options`) plus a list of individual test cases (`reviews`). **Every provider's evaluator loads the same file** to enable fair model comparison.
 
 ### Data Files
 
@@ -162,7 +170,7 @@ pip install -e ".[dev]"
 python -m pytest tests/ -v
 ```
 
-Tests cover the evaluator logic (question generation, F1/exact-match/micro-P/R/F1 scoring), LLM-as-judge verdict parsing, and data loading (JSON read). No API keys required — all tests use mocks and temporary files.
+Tests cover the evaluator logic (question generation, F1/exact-match/micro-P/R/F1 scoring), LLM-as-judge verdict parsing, data loading (JSON read), and all three adapters' request/response handling and error wrapping. No API keys required — all tests use mocks and temporary files.
 
 ## Troubleshooting
 

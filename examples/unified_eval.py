@@ -2,23 +2,33 @@
 Unified LLM evaluator that works with any provider (Ollama, OpenAI, etc.).
 
 The provider and model are configured via environment variables:
-- LLM_PROVIDER: 'ollama' (default) or 'openai'
+- LLM_PROVIDER: 'ollama' (default), 'openai', or 'groq'
 - OLLAMA_MODEL: Model for Ollama (default: gemma3:1b)
 - OPENAI_MODEL: Model for OpenAI (default: gpt-4o-mini)
 - OPENAI_API_KEY: Required for OpenAI provider
+- GROQ_MODEL: Model for Groq (default: llama-3.1-8b-instant)
+- GROQ_API_KEY: Required for Groq provider (free tier at console.groq.com)
 - USE_LLM_JUDGE: 'true' to additionally run LLM-as-judge evaluation (default: false)
+- JUDGE_MODEL: Model to use as the judge, same provider as LLM_PROVIDER (default:
+  unset, meaning the judge is the same model being tested — a weak/fast model can
+  be an unreliable judge of its own answers, so overriding this with a stronger
+  model on the same provider often gives more trustworthy verdicts)
 
 Usage:
     python -m examples.unified_eval              # Uses default provider (Ollama)
     LLM_PROVIDER=openai python -m examples.unified_eval  # Uses OpenAI
+    LLM_PROVIDER=groq python -m examples.unified_eval    # Uses Groq
+    USE_LLM_JUDGE=true JUDGE_MODEL=llama-3.3-70b-versatile \\
+        LLM_PROVIDER=groq python -m examples.unified_eval  # Stronger judge model
 """
 
 import logging
 from pathlib import Path
+from typing import Optional
 
 from llm_eval.core import config, evaluator, judge
 from llm_eval.data import load_json
-from llm_eval.adapters import OllamaAdapter, OpenAIAdapter
+from llm_eval.adapters import GroqAdapter, OllamaAdapter, OpenAIAdapter
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -28,23 +38,31 @@ logger = logging.getLogger(__name__)
 DATA_FILE = Path(__file__).parent.parent / "data" / "review_aspects_samples.json"
 
 
-def create_adapter():
-    """Create the appropriate LLM adapter based on configuration."""
+def create_adapter(model: Optional[str] = None):
+    """Create the appropriate LLM adapter based on configuration.
+
+    Args:
+        model: Override the provider's configured default model (used to run
+            a different model — e.g. a stronger one — as the judge).
+    """
     provider = config.llm_provider
 
     if provider == "ollama":
-        logger.info(f"Using Ollama provider with model '{config.ollama_model}'")
-        return OllamaAdapter(model=config.ollama_model)
+        model = model or config.ollama_model
+        logger.info(f"Using Ollama provider with model '{model}'")
+        return OllamaAdapter(model=model)
     elif provider == "openai":
-        logger.info(f"Using OpenAI provider with model '{config.openai_model}'")
-        return OpenAIAdapter(
-            model=config.openai_model,
-            api_key=config.openai_api_key,
-        )
+        model = model or config.openai_model
+        logger.info(f"Using OpenAI provider with model '{model}'")
+        return OpenAIAdapter(model=model, api_key=config.openai_api_key)
+    elif provider == "groq":
+        model = model or config.groq_model
+        logger.info(f"Using Groq provider with model '{model}'")
+        return GroqAdapter(model=model, api_key=config.groq_api_key)
     else:
         raise ValueError(
             f"Unknown LLM_PROVIDER: {provider}. "
-            f"Valid options are: 'ollama', 'openai'"
+            f"Valid options are: 'ollama', 'openai', 'groq'"
         )
 
 
@@ -71,11 +89,11 @@ def evaluate():
     evaluator.multi_label_eval(answers, options=base_data["options"], model_name=adapter.model_name)
 
     if config.use_llm_judge:
-        logger.info("USE_LLM_JUDGE=true: running LLM-as-judge evaluation")
+        judge_adapter = create_adapter(model=config.judge_model) if config.judge_model else adapter
+        logger.info(f"USE_LLM_JUDGE=true: judging with model '{judge_adapter.model_name}'")
         judge.llm_judge_eval(
             answers,
-            judge_llm=adapter.ask,
-            options=base_data["options"],
+            judge_llm=judge_adapter.ask,
             model_name=adapter.model_name,
         )
 

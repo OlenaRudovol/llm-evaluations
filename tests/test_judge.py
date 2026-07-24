@@ -2,14 +2,11 @@ from llm_eval.core import judge
 
 
 class TestLlmJudgeEval:
-    OPTIONS = ["price", "quality", "shipping"]
-
     def test_all_correct(self):
         answers = [("Q1", "some answer", ["price"]), ("Q2", "some answer", ["quality"])]
         accuracy = judge.llm_judge_eval(
             answers,
             judge_llm=lambda p: "Looks right.\nVERDICT: correct",
-            options=self.OPTIONS,
             model_name="mock-model",
         )
         assert accuracy == 1.0
@@ -19,7 +16,6 @@ class TestLlmJudgeEval:
         accuracy = judge.llm_judge_eval(
             answers,
             judge_llm=lambda p: "Missing an aspect.\nVERDICT: incorrect",
-            options=self.OPTIONS,
         )
         assert accuracy == 0.0
 
@@ -29,7 +25,6 @@ class TestLlmJudgeEval:
         accuracy = judge.llm_judge_eval(
             answers,
             judge_llm=lambda p: next(responses),
-            options=self.OPTIONS,
         )
         assert accuracy == 0.5
 
@@ -37,7 +32,6 @@ class TestLlmJudgeEval:
         accuracy = judge.llm_judge_eval(
             [],
             judge_llm=lambda p: "VERDICT: correct",
-            options=self.OPTIONS,
         )
         assert accuracy == 0.0
 
@@ -47,7 +41,6 @@ class TestLlmJudgeEval:
         accuracy = judge.llm_judge_eval(
             answers,
             judge_llm=lambda p: "Yes, this looks correct to me.",
-            options=self.OPTIONS,
         )
         assert accuracy == 1.0
 
@@ -59,8 +52,25 @@ class TestLlmJudgeEval:
             return "VERDICT: correct"
 
         answers = [("What aspects does this mention?", "It's about the price.", ["price"])]
-        judge.llm_judge_eval(answers, judge_llm=judge_llm, options=self.OPTIONS)
+        judge.llm_judge_eval(answers, judge_llm=judge_llm)
 
         assert "What aspects does this mention?" in captured["prompt"]
         assert "It's about the price." in captured["prompt"]
         assert "price" in captured["prompt"]
+
+    def test_prompt_omits_full_options_list(self):
+        # The judge previously saw the full options list alongside the expected
+        # subset and would sometimes mark a correct answer "incorrect" for not
+        # covering every possible aspect. The prompt should only ever mention
+        # the actual expected labels.
+        captured = {}
+
+        def judge_llm(prompt):
+            captured["prompt"] = prompt
+            return "VERDICT: correct"
+
+        answers = [("Which aspects: price, quality, shipping?", "price", ["price"])]
+        judge.llm_judge_eval(answers, judge_llm=judge_llm)
+
+        assert "ONLY correct aspects" in captured["prompt"]
+        assert "all possible aspects" not in captured["prompt"]
