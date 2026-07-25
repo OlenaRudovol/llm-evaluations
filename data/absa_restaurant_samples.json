@@ -1,0 +1,1256 @@
+{
+  "version": "1.0",
+  "updated": "2026-07-25",
+  "source": "Random sample of 200 (seed=42), deduplicated, from Hugging Face dataset 'scholl99/absa-restaurant-processed-v1' (SemEval-2014 Restaurant ABSA). Polarity labels dropped -- only aspect category kept, to match our aspect-mention schema.",
+  "attribute": "aspects",
+  "options": [
+    "food",
+    "service",
+    "ambience",
+    "price",
+    "anecdotes/miscellaneous"
+  ],
+  "reviews": [
+    {
+      "text": "Plus they made a perfect martini.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Its a great place for a casual date or to entertain clients for lunch.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "They are often crowded on the weekends but they are efficient and accurate with their service.",
+      "expected": [
+        "service",
+        "ambience"
+      ]
+    },
+    {
+      "text": "I am going to the mid town location next.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "They are located in the middle of Chinatown!",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "While the place is not a hotspot hangout, the drinks are unique and pack a lot of bang for the buck.",
+      "expected": [
+        "food",
+        "ambience",
+        "price"
+      ]
+    },
+    {
+      "text": "I have tried the various slice joints around the village but this is by far the best one.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "delicious bagels, especially when right out of the oven.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "I went here in the afternoon with a friend.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The restaurant looks out over beautiful green lawns to the Hudson River and the Statue of Liberty.",
+      "expected": [
+        "ambience"
+      ]
+    },
+    {
+      "text": "I keep my fingers crossed the whole subway ride hoping that there will be a table I can sit at by myself and not have to share with the rice congee soup people.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "But that is highly forgivable.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "(and I have eaten my share) Which impresses me for having such a large amount of people to serve.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "My friends spoke so much about it for months, I finally made the time to come down ear and dine in.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "from an English speaking staff.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The one on the east side is much better than the one on the west side.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Their tuna tartar appetizer is to die for.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "It's somewhere you can eat and be happy.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Quick and friendly service.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "I've been many time and have never been disappointed.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "First the wrong bread came out with the appetizer, then when i tried to order a second glass of wine for my main course...",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "Get the feeling they settled into a groove a while ago.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "I won't go back unless someone else is footing the bill.",
+      "expected": [
+        "price"
+      ]
+    },
+    {
+      "text": "It may be a bit packed on weekends, but the vibe is good and it is the best French food you will find in the area.",
+      "expected": [
+        "food",
+        "ambience"
+      ]
+    },
+    {
+      "text": "The meat dishes were only so-so.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "If only they delivered, they'd make a mint!",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Went to Ottimo and was expecting outstanding pizza (as I love La Pizza Fresca).",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "My host asked for appetizers for the group and the waiter gave us not only what we ordered, but some other items that were not ordered.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "I go back in line like three times on average until I can't walk anymore.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The portions are small but being that the food was so good makes up for that.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Go girls!!!",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Barbecued codfish was gorgeously moist - as if poached - yet the fabulous texture was let down by curiously bland seasoning - a spice rub might have overwhelmed, however herb mix or other sauce would have done much to enhance.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "What I didn't like was how the food came right after it was ordered.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "The bagels always warm, soft on the inside, crispy on the outside and enormous in size.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "I ordered the crab cocktail and it was soaked in a lime juice concoction where all you could taste was the lime.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "All the money went into the interior decoration, none of it went to the chefs.",
+      "expected": [
+        "ambience",
+        "food"
+      ]
+    },
+    {
+      "text": "Quality of food is excellent and price is cheap, stick to pork, fish, chicken, lamb and vegetables.",
+      "expected": [
+        "food",
+        "price"
+      ]
+    },
+    {
+      "text": "While most people can attest to spending over $50 on drinks in New York bars and hardly feeling a thing, the drinks here are plentiful and unique.",
+      "expected": [
+        "food",
+        "price"
+      ]
+    },
+    {
+      "text": "We ended the dinner with a surprisingly light and flaky apple tarte tatin.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Don't waste your time, or money!!",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "My friend's food was also the complete opposite of what it's supposed to taste like (aND look like).",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "But the coconut rice was good.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Be careful of portions - they're HUGE.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "My roommate and I LOVE this place.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The waiters were not attentive except that the bill turned up on the table before we were finished.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "The food was terrific and the service classy, attentive, without being overbearing.",
+      "expected": [
+        "food",
+        "service"
+      ]
+    },
+    {
+      "text": "Drinks got screwed up, she acted put upon.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "Thanks Bloom's for a lovely trip.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Not cheap, but not that expensive either.",
+      "expected": [
+        "price"
+      ]
+    },
+    {
+      "text": "Anyways, if you're in the neighborhood to eat good food, I wouldn't waste my time trying to find something, rather go across the street to Tamari.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "I wouldn't mind going back some time, but not before trying others nearby.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "It can be a very fun experience with a group, and kids (6 and over) would love it.",
+      "expected": [
+        "ambience"
+      ]
+    },
+    {
+      "text": "For great chinese food nearby, you have Wu Liang Ye and Grand Sichuan just a block away.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "He was terribly thirsty after the meal too.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "They never brought us complimentary noodles, ignored repeated requests for sugar, and threw our dishes on the table.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "After a seafood craving, i checked citysearch and chose to go to Fish based on a previous review and the citysearch info.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Great bagels made the old-fashioned way.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Great food and the prices are very reasonable.",
+      "expected": [
+        "food",
+        "price"
+      ]
+    },
+    {
+      "text": "Gigino's in Wagner Park is so enjoyable.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Saul is pretty good, but definitely not great.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "It's a steal!",
+      "expected": [
+        "price"
+      ]
+    },
+    {
+      "text": "I care more about the food and ambience.",
+      "expected": [
+        "food",
+        "ambience"
+      ]
+    },
+    {
+      "text": "We all had the tasting menu and unlike some of the other reviews, I felt there was more than enough food.",
+      "expected": [
+        "anecdotes/miscellaneous",
+        "food"
+      ]
+    },
+    {
+      "text": "Patroon features a nice cigar bar and has great staff.",
+      "expected": [
+        "service",
+        "ambience"
+      ]
+    },
+    {
+      "text": "skip dessert.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "What a great place!",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Faan is sooo good.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "You must have the crabmeat lasagna which is out of this world and the chocolate bread pudding for dessert.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "service is friendly, and never had a problem walking in and getting a table.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "Haru on Park S is simply disgusting.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "They came out over cooked and the cheese was almost non existant.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "this place is amazingly bad.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The food here does a great service to the name (Cantonese that is...).",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Not sure where the previous reviewer, lonk, dined, but Saul is in a great neighborhood and has great food!",
+      "expected": [
+        "food",
+        "ambience"
+      ]
+    },
+    {
+      "text": "Rosario's is without a doubt one of the greatest pizzerias in existence.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The food was mediocre at best but it was the horrible service that made me vow never to go back.",
+      "expected": [
+        "food",
+        "service"
+      ]
+    },
+    {
+      "text": "Normally that would be improper, however they were all delicious and my host did not complain.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Why do people rave about the ambience.",
+      "expected": [
+        "ambience"
+      ]
+    },
+    {
+      "text": "The food was very good, a great deal, and the place its self was great.",
+      "expected": [
+        "food",
+        "ambience"
+      ]
+    },
+    {
+      "text": "You get the sense that the people there care about their restaurant and about your experience and that is very nice.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "She gets 10 for her excellent service and advice.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "We've been following chef Lyle's food around New York for 15 years and while remaining classic, his innovations with bistro fare have made us return and return.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "I took my girlfriend there for her birthday last night and we had a relaxing, really good meal.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Not only is the cuisine the best around, the service has always been attentive and charming.",
+      "expected": [
+        "food",
+        "service"
+      ]
+    },
+    {
+      "text": "Horrible food and Horrible service.",
+      "expected": [
+        "food",
+        "service"
+      ]
+    },
+    {
+      "text": "If you're not familiar with the cuisine, you may encounter problems ordering here and be sure to bring plenty of cash with you as they don't accept credit cards.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "If you're looking for a place to sit down, have a drink and conversations with friends, go to sweet-n-tart and order yourself a hong-kong styled milk and tea with tapioca pearls (hot).",
+      "expected": [
+        "food",
+        "ambience"
+      ]
+    },
+    {
+      "text": "The most annoying thing, though, is the fact that the servers seem to be trained to drive revenue.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "The food is spectacular, from the appitizers to the main course, and then of course the desserts, (WOW) you'll need no more.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "As far as the service goes, the waitresses were not particularly friendly, but they got the job done.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "My husband said he could've eaten several more, the portion was fine for me he even exclaimed that the french fries were the best he has had.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "After the main course came, we didn't see our waiter for at least 40 MINUTES!",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "I've had pizza both times and the caprese salad appetizer.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "my first time here was with my gf for our 12 month anniversary.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Anybody who likes this place must be from a different planet, where greasy, dry and tasteless are complimentary.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Service is great, takeout is good too.",
+      "expected": [
+        "food",
+        "service"
+      ]
+    },
+    {
+      "text": "The ambience is authentic and relaxing and we have always received attentive and prompt service.",
+      "expected": [
+        "ambience",
+        "service"
+      ]
+    },
+    {
+      "text": "Whether it's the parmesean porcini souffle or the lamb glazed with balsamic vinegar, you will surely be transported to Northern Italy with one bite.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "I've eaten thai many times, and am very familiar with the cuisine.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The service was great as well.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "Unlike HH up the block, this place actually gives you hearty and hot bagels this town is known for.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "However, in the summer of 2003, it seems the management has changed and the great big door has been replaced for a glass front ridding itself of the dark romantic getup.",
+      "expected": [
+        "service",
+        "ambience"
+      ]
+    },
+    {
+      "text": "Just wish they'd expand.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "i would recommend reservations on weekends though.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "What came to our table was burned beyond recognition and stringy.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "The food is good, especially their more basic dishes, and the drinks are delicious.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "This was one of the BEST restaurants I've ever been to.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Decent wine selection too.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "This was the perfect quiet, relaxing, and delicious accompaniment to our afternoon of theater.",
+      "expected": [
+        "food",
+        "ambience"
+      ]
+    },
+    {
+      "text": "Waiters tend to forget drinks completely, food portions are so tiny, two people have trouble sharing one entree.",
+      "expected": [
+        "food",
+        "service"
+      ]
+    },
+    {
+      "text": "My girlfiends and I ate at O.G. again last night.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Upon entering, we were greeted by the owners, Steven and Frederick, who went out of their way to be more than gracious hosts.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "From the complimentary chef app of a delicate butternut squash ravioli in a delicious truffle sauce to an amazing buttery and tender langostine entree to a dessert that I can't remember because of the fabulous Cakebread Cabernet we were drinking -- the whole evening was amazing.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Mizu is the Japenese find in Grammercy.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "People dress in suits or evening gowns as well as shirts jeans.",
+      "expected": [
+        "ambience"
+      ]
+    },
+    {
+      "text": "they bring service up a notch by offerng complementary amuse bouche to all tables and gave us a small dessert for our celebration.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "The decor is very simple but comfortable.",
+      "expected": [
+        "ambience"
+      ]
+    },
+    {
+      "text": "A little pricey but it really hits the spot on a Sunday morning!",
+      "expected": [
+        "price",
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "We took advanatage of the half price sushi deal on saturday so it was well worth it.",
+      "expected": [
+        "price"
+      ]
+    },
+    {
+      "text": "There is actually space to breathe and the decor sets the tone for an intimate dinner.",
+      "expected": [
+        "ambience"
+      ]
+    },
+    {
+      "text": "instead ordered an ice cold beer which to me works with indian.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The food was not very tasty, the portioins were tiny even for such a high quality restaurant.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "With so many good restaurants on the UWS, I don't need overpriced food, absurdly arrogant wait-staff who don't recognize they work at a glorified diner, clumsy service, and management that doesn't care.",
+      "expected": [
+        "service",
+        "price",
+        "food"
+      ]
+    },
+    {
+      "text": "If you want to save some money, don't go here.",
+      "expected": [
+        "price"
+      ]
+    },
+    {
+      "text": "His wife Tanya, the hostess, completes the comforting atmosphere by being delightfully warm and gracious.",
+      "expected": [
+        "service",
+        "ambience"
+      ]
+    },
+    {
+      "text": "A restaurant that doesn't try to do anything except serve great food with great service in a pleasant atmosphere.",
+      "expected": [
+        "food",
+        "service",
+        "ambience"
+      ]
+    },
+    {
+      "text": "If I could rate the people this place would be off the charts - unfortunately - the pizza, sorry - not the best in NYC.",
+      "expected": [
+        "food",
+        "service"
+      ]
+    },
+    {
+      "text": "I will definetly be going back.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Toons has recently been redone, so it's now a very attractive space.",
+      "expected": [
+        "ambience"
+      ]
+    },
+    {
+      "text": "My sister says it reminds her of a restaurant run by high-school students who don't know what they are doing.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "When he's not making authentic Neapolitan pizza in the open brick oven or lightly frying zucchini blossoms, he's visiting the regulars (a growing legion) and checking on newcomers.",
+      "expected": [
+        "service",
+        "food"
+      ]
+    },
+    {
+      "text": "Hey, I think $2+ for a 5 block walk ain't bad.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The dim sum servings here are a bit larger than I'm used to.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Go there on an empty stomach and leave feeling like a baby Veal Calf(ok bad joke), but you will see.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Get it together.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Give it a try and enjoy.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "If you like Sakagura but you feel it's too much, you'd better try Yokocho.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The food was bland oily.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Good food.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "during happy hour!",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "You guys are awesome!",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Save yourself the time and trouble and skip this one!",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The service was excellent, the food was excellent, but the entire experience was very cool.",
+      "expected": [
+        "food",
+        "service"
+      ]
+    },
+    {
+      "text": "They all know you.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "If you are looking for a good quality, cheap eats - this is the place.",
+      "expected": [
+        "food",
+        "price"
+      ]
+    },
+    {
+      "text": "Don't go there!",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "we did notice however, that some tables had what looked like pita instead of naan.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "We had a wonderful meal at Naples 45 a month ago on a visit to NYC.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "The vibe is very relaxed and cozy, service was great and the food was excellent!",
+      "expected": [
+        "food",
+        "service",
+        "ambience"
+      ]
+    },
+    {
+      "text": "Everything is always cooked to perfection, the service is excellent, the decor cool and understated.",
+      "expected": [
+        "food",
+        "service",
+        "ambience"
+      ]
+    },
+    {
+      "text": "I thanked my friend who recommended me this restaurant and will certainly recommend it to others.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "We laughed when he finally offered us a dessert menu and we left a 10 percent tip, which was generous, I feel.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "Their pad penang is delicious and everything else is fantastic.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Worth visiting the 1st Ave spot because it is the original store.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "They're terrific!!",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Its location is good and the fact that Hutner College is near and their prices are very reasonable, makes students go back to Suan again and again.",
+      "expected": [
+        "ambience",
+        "price"
+      ]
+    },
+    {
+      "text": "The waitress, seems to be more concerned of looking good than actually waitressing.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "I've rarely had a problem with slow staff in the 10 years I've been going.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "always fresh and delicious.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "You must try the shrimp appetizers.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "The tastes makes your mouth water for more.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "still stay away, the table next to us walked out after my table and aanother were serves eventhough they were there much longer...",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "Went to Village last night for my birthday.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Friendly staff that actually lets you enjoy your meal and the company you're with.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "LLOOVVE THIS PLACE.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The design and atmosphere is just as good.",
+      "expected": [
+        "ambience"
+      ]
+    },
+    {
+      "text": "Service was on par but not wonderful.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "I have to say that I am pleasantly suprised and I will most likely stop in again if I am in the neighborhood.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Having not been home in the last 2 years may skew this reviewer a bit, but the food was tasty and spicy sans the oil that comes floating along at similar venues.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "This restaurant was way overhyped.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Over the years, it has always provided a pleasurable dining experience with quality food and wine.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Butter was melted, white wine warm, cheese oozing everywhere.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Spice is great Thai food, love the inexpensive appetizers.",
+      "expected": [
+        "food",
+        "price"
+      ]
+    },
+    {
+      "text": "This is the Jackel and Hideof the restaurants on the UES.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The entree was bland and small, dessert was not inspired.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "This place is always packed.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Oh yes, and if you are a fan of Indian oldies film stars, there are plenty of portraits of Indian actors and actresses in classic black white that adorn the walls, some of which, I would love to know where they obtained.",
+      "expected": [
+        "ambience"
+      ]
+    },
+    {
+      "text": "Great atmoshere and worth every bit.",
+      "expected": [
+        "ambience"
+      ]
+    },
+    {
+      "text": "Raga stands out with an interesting fusion of French and Indian cooking.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Well, this place is so Ghetto its not even funny.",
+      "expected": [
+        "ambience"
+      ]
+    },
+    {
+      "text": "The service was attentive, yet discreet.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "The food is uniformly exceptional, with a very capable kitchen which will proudly whip up whatever you feel like eating, whether it's on the menu or not.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "Just remember, the later you go, the longer you may have to wait.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "Our family never expected such incredible entertainment in a restaurant.",
+      "expected": [
+        "ambience"
+      ]
+    },
+    {
+      "text": "The food is wonderful, tasty and filling, and the service is professional and friendly.",
+      "expected": [
+        "food",
+        "service"
+      ]
+    },
+    {
+      "text": "The menu is very limited - i think we counted 4 or 5 entrees.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "The table next to us asked if he crushed the grapes himself when their long overdue bottle of wine finally arrived.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "I have never had cheescake like this.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "The menu choices are similar but the taste lacked more flavor than it looked.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "There was a long wait for a table outside, but it was a little too hot in the sun anyway so our insde table was very nice.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "The food is great.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "So much more than the usual bar food, go there to enjoy the menu while sampling one of their hand-crafted beers.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "despite the untasteful previous review...",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "The selection changes frequently but the basic dishes are always available.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "We had great desserts (including the best cannoli I've ever had) and then they offered an after dinner drink, on the house.",
+      "expected": [
+        "food",
+        "service"
+      ]
+    },
+    {
+      "text": "They didn't give us the dinner special until we asked for it.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "Unless you are eating in the Pizzeria side of this place, and are not in a rush, this place is a bad idea.",
+      "expected": [
+        "anecdotes/miscellaneous"
+      ]
+    },
+    {
+      "text": "For the next hour and a half we stood in the crowded lobby area of this touristy restaurant listening to all types of explanations of why we were not being seated.",
+      "expected": [
+        "service"
+      ]
+    },
+    {
+      "text": "The desserts are more appealing then stuffy overpriced French restaurants.",
+      "expected": [
+        "food"
+      ]
+    },
+    {
+      "text": "And affordable.",
+      "expected": [
+        "price"
+      ]
+    }
+  ]
+}
