@@ -42,14 +42,11 @@ All settings are environment variables (see `.env.example`):
 
 ## Evaluation Methods
 
-Every run scores answers with **substring matching**: an aspect counts as predicted if it appears as a case-insensitive substring of the model's answer. Fast and free, but brittle — "cost" instead of "price" is marked wrong. Four views of the same predictions:
+Every run scores answers with **substring matching**: an aspect counts as predicted if it appears as a case-insensitive substring of the model's answer. Fast and free, but brittle — "cost" instead of "price" is marked wrong. Reports four views: **Average F1** (macro), **Exact match rate**, **Micro P/R/F1**, and **Per-label P/R/F1** (`evaluator.per_label_prf1`, with `support`).
 
-- **Average F1** (macro, per-example)
-- **Exact match rate** — predicted set must equal expected set exactly
-- **Micro P/R/F1** — aggregated over every label decision, not per example
-- **Per-label P/R/F1** (`evaluator.per_label_prf1`) — same metrics per individual label, plus `support` (how many reviews expected it). The aggregates above can hide that a model is reliable on one label and weak on another.
+`USE_LLM_JUDGE=true` additionally asks a second LLM to judge correctness in natural language, tolerating paraphrases substring matching would reject. `JUDGE_MODEL` overrides which model does the judging.
 
-`USE_LLM_JUDGE=true` additionally asks a second LLM whether the answer is correct in natural language, tolerating paraphrases substring matching would reject. It only ever sees the *expected* labels, not the full options list — showing the full list confuses smaller judge models into penalizing correct answers for aspects that were never expected. If verdicts still look unreliable, set `JUDGE_MODEL` to a stronger model.
+Running `python -m examples.unified_eval` prints a full explanation of what each number means and why it's reported, right alongside the results — no need to look it up here.
 
 ## Test Data
 

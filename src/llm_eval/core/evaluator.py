@@ -119,6 +119,22 @@ def per_label_prf1(pairs: List[Tuple[Set[str], Set[str]]], labels: List[str]) ->
     return result
 
 
+def _print_metric_explanations() -> None:
+    """Explain, in the console output itself, what each number above means and
+    why it's reported separately -- so results are readable without also
+    having the README open."""
+    print(
+        "\nWhat these numbers mean:\n"
+        "  P(recision) = share of predictions that were right. R(ecall) = share of actual\n"
+        "  labels caught. F1 = balance of both (punished if either P or R is low).\n\n"
+        "  Average F1 (macro)    -- per-review score (0-1), averaged equally across reviews.\n"
+        "  Exact match rate      -- fraction of reviews with the label set 100% right (no partial credit).\n"
+        "  Micro P / R / F1      -- aggregated over every label decision; diverges from macro when review difficulty varies.\n"
+        "  Per-label P / R / F1  -- same math per individual label + 'support' = how many reviews\n"
+        "                           actually had that label (context, not a score)."
+    )
+
+
 def multi_label_eval(
     answers: List[Tuple[str, str, List[str]]],
     options: List[str],
@@ -181,5 +197,7 @@ def multi_label_eval(
             f"  {label:<20} {stats['precision']:.2f} / {stats['recall']:.2f} / {stats['f1']:.2f}"
             f"   (support={stats['support']})"
         )
+
+    _print_metric_explanations()
 
     return {"avg_f1": avg_f1, "exact_match": exact_match, "micro": micro, "per_label": per_label}
