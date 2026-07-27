@@ -4,30 +4,15 @@ An open-source framework for evaluating Large Language Models (LLMs) with extens
 
 ## Quick Start
 
-1. **Install the package**:
+1. **Install**: `pip install -e .`
+2. **Configure**: `cp .env.example .env` and fill in your API keys.
+3. **Run**:
    ```bash
-   pip install -e .
+   python -m examples.unified_eval                     # Ollama (default)
+   LLM_PROVIDER=openai python -m examples.unified_eval  # OpenAI
+   LLM_PROVIDER=groq python -m examples.unified_eval    # Groq (free tier at console.groq.com)
    ```
-
-2. **Set up environment variables**: Copy `.env.example` to `.env` and fill in your API keys:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your OpenAI API key
-   ```
-
-3. **Run the evaluator** with your preferred LLM provider:
-   ```bash
-   # Using default provider (Ollama)
-   python -m examples.unified_eval
-   
-   # Or use OpenAI
-   LLM_PROVIDER=openai python -m examples.unified_eval
-
-   # Or use Groq (free tier at console.groq.com — hosts Llama, Gemma, Mixtral)
-   LLM_PROVIDER=groq python -m examples.unified_eval
-   ```
-
-4. If running locally, install Ollama (ollama.com), pull a model: `ollama pull gemma3:1b`
+4. Running locally? Install Ollama (ollama.com) and pull a model: `ollama pull gemma3:1b`
 
 ## Project Structure
 
@@ -40,46 +25,40 @@ llm-eval/
 │   └── templates/         # Question/prompt templates
 ├── examples/              # Demo scripts and usage examples
 ├── data/                  # Datasets
+├── scripts/               # One-off data tooling (not part of the eval pipeline)
 └── tests/                 # Unit tests
 ```
 
 ## Configuration
 
-The evaluator uses environment variables for configuration. See `.env.example` for all available options:
+All settings are environment variables (see `.env.example`):
 
-- `LLM_PROVIDER`: Which provider to use (default: `ollama`, options: `ollama`, `openai`, `groq`)
-- `OPENAI_API_KEY`: Your OpenAI API key (required for OpenAI provider)
-- `OPENAI_MODEL`: OpenAI model to use (default: `gpt-4o-mini`)
-- `OLLAMA_MODEL`: Ollama model to use (default: `gemma3:1b`)
-- `GROQ_API_KEY`: Your Groq API key (required for Groq provider; free tier, no card required at [console.groq.com](https://console.groq.com))
-- `GROQ_MODEL`: Groq model to use (default: `llama-3.1-8b-instant`)
-- `USE_LLM_JUDGE`: Set to `true` to additionally run LLM-as-judge evaluation (default: `false`)
-- `JUDGE_MODEL`: Model to use as the judge, on the same provider as `LLM_PROVIDER` (default: unset — judge with the same model being tested)
+- `LLM_PROVIDER` — `ollama` (default), `openai`, or `groq`
+- `OLLAMA_MODEL` (default `gemma3:1b`), `OPENAI_MODEL` (default `gpt-4o-mini`), `GROQ_MODEL` (default `llama-3.1-8b-instant`)
+- `OPENAI_API_KEY` / `GROQ_API_KEY` — required for that provider (Groq: free tier, no card, at [console.groq.com](https://console.groq.com))
+- `USE_LLM_JUDGE` — `true` to additionally run LLM-as-judge (default `false`)
+- `JUDGE_MODEL` — stronger model to judge with, same provider (default: unset → judges with the model being tested)
+- `EVAL_DATA_FILE` — which `data/*.json` file to evaluate (default `data/review_aspects_samples.json`)
 
 ## Evaluation Methods
 
-Every run scores the model with **substring matching**: an aspect counts as predicted if it (or one of the known `options`) appears as a case-insensitive substring of the model's free-text answer. This is fast, free, and deterministic, but brittle — a model that answers "cost" instead of "price" is marked wrong even though it identified the right aspect. It reports three views of the same predictions:
+Every run scores answers with **substring matching**: an aspect counts as predicted if it appears as a case-insensitive substring of the model's answer. Fast and free, but brittle — "cost" instead of "price" is marked wrong. Reports four views: **Average F1** (macro), **Exact match rate**, **Micro P/R/F1**, and **Per-label P/R/F1** (`evaluator.per_label_prf1`, with `support`).
 
-- **Average F1 (macro, per-example)** — F1 computed per review, then averaged across the dataset.
-- **Exact match rate** — the fraction of reviews where the predicted label set exactly equals the expected set (stricter than F1; partial credit doesn't count).
-- **Micro precision / recall / F1** — precision/recall aggregated over every individual label decision in the dataset, rather than averaged per example. Diverges from the macro F1 above when review difficulty (number of expected labels) is uneven across the dataset.
+`USE_LLM_JUDGE=true` additionally asks a second LLM to judge correctness in natural language, tolerating paraphrases substring matching would reject. `JUDGE_MODEL` overrides which model does the judging.
 
-Set `USE_LLM_JUDGE=true` to additionally run **LLM-as-judge** evaluation (`src/llm_eval/core/judge.py`): a second LLM call reads the model's free-text answer and the expected labels, and judges in natural language whether the answer is correct — tolerating paraphrases and synonyms that substring matching would mark wrong. It costs an extra LLM call per test case, so it's opt-in rather than the default.
+Running `python -m examples.unified_eval` prints a full explanation of what each number means and why it's reported, right alongside the results — no need to look it up here.
 
-The judge is only ever shown the expected labels for the current review, never the full list of possible aspects — an earlier version included that list and a small/fast judge model would frequently conflate "every possible aspect" with "every expected aspect," marking correct answers as incorrect for not covering aspects that were never expected. Even with that fixed, a weak judge model can still misjudge nuanced cases (or simply reason incorrectly) — if judge verdicts look unreliable, set `JUDGE_MODEL` to a stronger model on the same provider (e.g. `JUDGE_MODEL=llama-3.3-70b-versatile` when `LLM_PROVIDER=groq`) rather than trusting a small/fast model to grade itself.
+## Test Data
 
-## Test Data Management
+Files in `/data/` are JSON: `{version, updated, attribute, options, reviews: [{text, expected}]}`. Every provider evaluates against the same file.
 
-Test data is stored in `/data/` as **JSON** files — each file is a single document with shared metadata (`attribute`, `options`) plus a list of individual test cases (`reviews`). **Every provider's evaluator loads the same file** to enable fair model comparison.
-
-### Data Files
-
-- `data/review_aspects_samples.json` — customer reviews tagged with which aspects (price, quality, shipping, customer service, packaging) each one mentions. A review can mention zero, one, or several aspects.
-
-### File Structure
+- **`review_aspects_samples.json`** — 16 hand-written reviews covering single-label baselines, keyword-coincidence distractors, and indirect phrasing.
+- **`absa_restaurant_samples.json`** — 200 real restaurant reviews from a public Hugging Face ABSA dataset (see below). Scores much lower than the curated set — a small hand-written dataset can quietly become "too easy."
 
 ```json
 {
+  "version": "1.0",
+  "updated": "2026-07-24",
   "attribute": "aspects",
   "options": ["price", "quality", "shipping", "customer service", "packaging"],
   "reviews": [
@@ -88,107 +67,59 @@ Test data is stored in `/data/` as **JSON** files — each file is a single docu
 }
 ```
 
-- `attribute`, `options` are shared across every test case in the file
-- `reviews` is the list of individual test cases, each with its own `text` and `expected` list of aspects (can be empty, one, or several)
-
-### Adding More Samples
-
-**Option 1: Edit the JSON file directly** — append an entry to the `reviews` array.
-
-**Option 2: Load, modify, and save with `load_json`**
+**Adding samples** — edit the JSON directly, or via `load_json`:
 ```python
 import json
-from src.llm_eval.data import load_json
+from llm_eval.data import load_json
 
 data = load_json("data/review_aspects_samples.json")
-data["reviews"].append({"text": "Support was rude and slow to respond.", "expected": ["customer service"]})
-
-with open("data/review_aspects_samples.json", "w") as f:
-    json.dump(data, f, indent=2)
+data["reviews"].append({"text": "Support was rude.", "expected": ["customer service"]})
+json.dump(data, open("data/review_aspects_samples.json", "w"), indent=2)
 ```
 
-### Using `load_json`
+**Best practices**: bump `version`/`updated` on any change — results from different versions aren't comparable; generate data via script rather than hand-editing where possible; keep splits tagged; don't commit sensitive data. `tests/test_data_integrity.py` automatically checks every `data/*.json` file for label drift, duplicates, and version metadata.
 
-```python
-from src.llm_eval.data import load_json
+## Building a Dataset from Real Data
 
-data = load_json("data/review_aspects_samples.json")
-base_data = {k: v for k, v in data.items() if k != "reviews"}
-test_cases = data["reviews"]
+`scripts/explore_absa_dataset.py` and `scripts/build_absa_sample.py` (`pip install -e ".[analysis]"`) pull a real ABSA dataset from Hugging Face, run hygiene checks (duplicates, label balance, train/test leakage), and sample it into our schema:
+
+```bash
+python -m scripts.explore_absa_dataset   # hygiene/analysis report
+python -m scripts.build_absa_sample       # (re)writes data/absa_restaurant_samples.json
 ```
 
-### Best Practices for Test Data
-
-1. **Version your data** — tag datasets with dates or version numbers
-2. **Make data regenerable** — script your data generation (not hand-curated)
-3. **Organize by split** — keep train/test/val separate or tagged
-4. **Document schema** — add comments in your data files about expected fields
-5. **Consider data privacy** — don't commit sensitive test data to git
+The sample is a reproducible random draw (`seed=42`), not stratified — it keeps the source data's real class imbalance instead of hiding it. To adapt this to another dataset, change `DATASET_ID`, `OPTIONS`, and `to_categories()` in `build_absa_sample.py`.
 
 ## Extending the Framework
 
-### Adding New LLM Providers
+**New LLM provider** — subclass `LLMAdapter` in `src/llm_eval/adapters/`:
+```python
+class NewProviderAdapter(LLMAdapter):
+    def __init__(self, model: str, api_key: str): ...
+    def ask(self, question: str) -> str: ...
+    @property
+    def model_name(self) -> str: ...
+```
+Export it from `adapters/__init__.py`, then wire it into `create_adapter()` in `examples/unified_eval.py`.
 
-1. Create a new adapter in `src/llm_eval/adapters/`:
-   ```python
-   from .base import LLMAdapter
+**New metric** — add a function in `evaluator.py` taking `(predicted, expected)` label-set pairs and returning a score (see `exact_match_eval`, `per_label_prf1`). For judge-style metrics needing their own LLM calls, add a module like `judge.py`.
 
-   class NewProviderAdapter(LLMAdapter):
-       def __init__(self, model: str, api_key: str):
-           # Initialize client
-           pass
-       
-       def ask(self, question: str) -> str:
-           # Implement API call
-           pass
-       
-       @property
-       def model_name(self) -> str:
-           return self._model
-   ```
-
-2. Update `src/llm_eval/adapters/__init__.py` to export it
-
-3. Update `examples/unified_eval.py` to handle the new provider
-
-### Adding New Metrics
-
-Add a function to `src/llm_eval/core/evaluator.py` that takes the collected `(predicted, expected)`
-label-set pairs and returns a score — see `exact_match_eval` and `micro_prf1_eval` for examples.
-For evaluation approaches that need their own LLM calls (like judging), add a module alongside
-`src/llm_eval/core/judge.py` instead.
-
-### Adding New Templates
-
-Add new JSON files to `src/llm_eval/templates/` and update the evaluator to support them.
+**New template** — add a JSON file to `src/llm_eval/templates/` and wire it into the evaluator.
 
 ## Testing
 
-Install the dev dependencies, then run the full test suite:
 ```bash
 pip install -e ".[dev]"
 python -m pytest tests/ -v
 ```
 
-Tests cover the evaluator logic (question generation, F1/exact-match/micro-P/R/F1 scoring), LLM-as-judge verdict parsing, data loading (JSON read), and all three adapters' request/response handling and error wrapping. No API keys required — all tests use mocks and temporary files.
+Covers evaluator/scoring logic, judge verdict parsing, data loading, all three adapters (mocked, no network), and dataset integrity. No API keys required.
 
 ## Troubleshooting
 
-If you get a `ConnectionError` when running the Ollama evaluator:
+`ConnectionError` from the Ollama evaluator:
+1. `ollama serve &` — start the server
+2. `ollama pull gemma3:1b` — pull the model
+3. `ps aux | grep ollama` — check it's running
 
-1. **Start the Ollama server** (if not already running):
-   ```sh
-   ollama serve &
-   ```
-2. **Pull the model** (if not downloaded):
-   ```sh
-   ollama pull gemma3:1b
-   ```
-3. **Check server status**:
-   ```sh
-   ps aux | grep ollama
-   ```
-
-The devcontainer should start the server automatically, but you may need to restart it manually.
-
-For demonstration: just share the repo link — anyone with a GitHub account can open it in Codespaces and run it.
+The devcontainer starts Ollama automatically; restart manually if needed. For demos: share the repo link — anyone can open it in Codespaces and run it.

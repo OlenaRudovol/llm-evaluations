@@ -68,4 +68,10 @@ def llm_judge_eval(
 
     accuracy = correct / len(answers) if answers else 0.0
     print(f"\nJudge accuracy: {accuracy:.2f}")
+    print(
+        "\nWhat this measures: a second LLM judges each answer against only the expected\n"
+        "labels, tolerating paraphrases the substring metrics above would mark wrong. A\n"
+        "judge is only as reliable as the model doing the judging -- if this disagrees\n"
+        "sharply with the substring metrics, try a stronger JUDGE_MODEL."
+    )
     return accuracy

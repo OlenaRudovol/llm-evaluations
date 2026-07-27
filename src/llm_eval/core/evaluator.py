@@ -88,6 +88,53 @@ def micro_prf1_eval(pairs: List[Tuple[Set[str], Set[str]]]) -> Dict[str, float]:
     return {"precision": precision, "recall": recall, "f1": f1}
 
 
+def per_label_prf1(pairs: List[Tuple[Set[str], Set[str]]], labels: List[str]) -> Dict[str, Dict[str, float]]:
+    """Precision/recall/F1 computed independently for each label.
+
+    Unlike `micro_prf1_eval` (aggregated across all labels) or the per-example
+    F1 in `multi_label_eval` (aggregated across all examples), this shows
+    where a model is strong or weak on a *specific* label — e.g. reliable on
+    "customer service" but unreliable on "packaging". Each label's dict also
+    includes `support`: how many examples actually expected that label,
+    since a perfect score backed by only one example isn't very trustworthy.
+    """
+    result = {}
+    for label in labels:
+        label_lower = label.lower()
+        tp = fp = fn = 0
+        for predicted, expected in pairs:
+            in_predicted = label_lower in predicted
+            in_expected = label_lower in expected
+            if in_predicted and in_expected:
+                tp += 1
+            elif in_predicted:
+                fp += 1
+            elif in_expected:
+                fn += 1
+
+        precision = tp / (tp + fp) if (tp + fp) else 0.0
+        recall = tp / (tp + fn) if (tp + fn) else 0.0
+        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
+        result[label] = {"precision": precision, "recall": recall, "f1": f1, "support": tp + fn}
+    return result
+
+
+def _print_metric_explanations() -> None:
+    """Explain, in the console output itself, what each number above means and
+    why it's reported separately -- so results are readable without also
+    having the README open."""
+    print(
+        "\nWhat these numbers mean:\n"
+        "  P(recision) = share of predictions that were right. R(ecall) = share of actual\n"
+        "  labels caught. F1 = balance of both (punished if either P or R is low).\n\n"
+        "  Average F1 (macro)    -- per-review score (0-1), averaged equally across reviews.\n"
+        "  Exact match rate      -- fraction of reviews with the label set 100% right (no partial credit).\n"
+        "  Micro P / R / F1      -- aggregated over every label decision; diverges from macro when review difficulty varies.\n"
+        "  Per-label P / R / F1  -- same math per individual label + 'support' = how many reviews\n"
+        "                           actually had that label (context, not a score)."
+    )
+
+
 def multi_label_eval(
     answers: List[Tuple[str, str, List[str]]],
     options: List[str],
@@ -98,8 +145,8 @@ def multi_label_eval(
     Use `collect_answers` to build `answers`. Labels are detected by checking
     which of the known `options` appear (case-insensitively) as a substring
     of the model's answer. Prints a human-readable report and returns a dict
-    with `avg_f1` (macro, per-example), `exact_match`, and `micro`
-    (a `{precision, recall, f1}` dict).
+    with `avg_f1` (macro, per-example), `exact_match`, `micro`
+    (a `{precision, recall, f1}` dict), and `per_label` (see `per_label_prf1`).
     """
     header = f"Testing the model: {model_name}" if model_name else "Evaluating model"
     print(f"{header}\n")
@@ -135,6 +182,7 @@ def multi_label_eval(
     avg_f1 = total_f1 / len(answers) if answers else 0.0
     exact_match = exact_match_eval(pairs)
     micro = micro_prf1_eval(pairs)
+    per_label = per_label_prf1(pairs, options)
 
     print(f"\nAverage F1 (macro, per-example): {avg_f1:.2f}")
     print(f"Exact match rate:                {exact_match:.2f}")
@@ -143,4 +191,13 @@ def multi_label_eval(
         f"{micro['precision']:.2f} / {micro['recall']:.2f} / {micro['f1']:.2f}"
     )
 
-    return {"avg_f1": avg_f1, "exact_match": exact_match, "micro": micro}
+    print("\nPer-label breakdown (precision / recall / F1, support):")
+    for label, stats in per_label.items():
+        print(
+            f"  {label:<20} {stats['precision']:.2f} / {stats['recall']:.2f} / {stats['f1']:.2f}"
+            f"   (support={stats['support']})"
+        )
+
+    _print_metric_explanations()
+
+    return {"avg_f1": avg_f1, "exact_match": exact_match, "micro": micro, "per_label": per_label}

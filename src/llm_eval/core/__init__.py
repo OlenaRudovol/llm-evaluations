@@ -5,6 +5,7 @@ from .evaluator import (
     generate_question,
     micro_prf1_eval,
     multi_label_eval,
+    per_label_prf1,
 )
 from .judge import llm_judge_eval
 
@@ -15,5 +16,6 @@ __all__ = [
     "multi_label_eval",
     "exact_match_eval",
     "micro_prf1_eval",
+    "per_label_prf1",
     "llm_judge_eval",
 ]

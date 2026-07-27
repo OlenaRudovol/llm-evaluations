@@ -13,6 +13,9 @@ The provider and model are configured via environment variables:
   unset, meaning the judge is the same model being tested — a weak/fast model can
   be an unreliable judge of its own answers, so overriding this with a stronger
   model on the same provider often gives more trustworthy verdicts)
+- EVAL_DATA_FILE: Path to a data/*.json file to evaluate against (default:
+  data/review_aspects_samples.json). All files in data/ share the same schema
+  (attribute/options/reviews), so any of them works here.
 
 Usage:
     python -m examples.unified_eval              # Uses default provider (Ollama)
@@ -20,6 +23,8 @@ Usage:
     LLM_PROVIDER=groq python -m examples.unified_eval    # Uses Groq
     USE_LLM_JUDGE=true JUDGE_MODEL=llama-3.3-70b-versatile \\
         LLM_PROVIDER=groq python -m examples.unified_eval  # Stronger judge model
+    EVAL_DATA_FILE=data/absa_restaurant_samples.json \\
+        python -m examples.unified_eval  # Evaluate against a different dataset
 """
 
 import logging
@@ -34,8 +39,9 @@ from llm_eval.adapters import GroqAdapter, OllamaAdapter, OpenAIAdapter
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load test data from external file
-DATA_FILE = Path(__file__).parent.parent / "data" / "review_aspects_samples.json"
+# Load test data from external file (override with EVAL_DATA_FILE)
+DEFAULT_DATA_FILE = Path(__file__).parent.parent / "data" / "review_aspects_samples.json"
+DATA_FILE = Path(config.data_file) if config.data_file else DEFAULT_DATA_FILE
 
 
 def create_adapter(model: Optional[str] = None):

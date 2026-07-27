@@ -28,6 +28,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
+analysis = ["datasets>=2.0"]
 
 [project.urls]
 Homepage = "https://github.com/OlenaRudovol/llm-eval"

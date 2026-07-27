@@ -32,3 +32,4 @@ groq_model: str = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
 # Evaluation settings
 use_llm_judge: bool = os.getenv("USE_LLM_JUDGE", "false").lower() == "true"
 judge_model: Optional[str] = os.getenv("JUDGE_MODEL")  # unset -> judge with the same model being tested
+data_file: Optional[str] = os.getenv("EVAL_DATA_FILE")  # unset -> data/review_aspects_samples.json
