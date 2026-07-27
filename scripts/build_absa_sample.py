@@ -30,7 +30,7 @@ OPTIONS = ["food", "service", "ambience", "price", "anecdotes/miscellaneous"]
 
 
 def to_categories(labels: list) -> list:
-    """"category#polarity" strings -> deduped, order-preserving list of categories."""
+    """Convert "category#polarity" strings into a deduped, order-preserving list of categories."""
     seen = []
     for label in labels:
         category = label.partition("#")[0]

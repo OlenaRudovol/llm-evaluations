@@ -19,7 +19,7 @@ DATASET_ID = "scholl99/absa-restaurant-processed-v1"
 
 
 def split_category_polarity(label: str) -> tuple:
-    """"food#positive" -> ("food", "positive")."""
+    """Convert a label like "food#positive" into ("food", "positive")."""
     category, _, polarity = label.partition("#")
     return category, polarity
 
